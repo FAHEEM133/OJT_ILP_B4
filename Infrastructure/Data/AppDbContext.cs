@@ -45,7 +45,7 @@ namespace Infrastructure.Data
                  .HasKey(sg => sg.SubGroupId);
 
             modelBuilder.Entity<Market>()
-                .HasKey(m => m.MarketId);
+                .HasKey(m => m.Id);
 
             // Configure the one-to-many relationship between Market and MarketSubGroup
             modelBuilder.Entity<MarketSubGroup>()

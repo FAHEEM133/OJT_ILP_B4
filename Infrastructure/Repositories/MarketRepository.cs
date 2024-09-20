@@ -26,7 +26,7 @@ namespace Infrastructure.Repositories
         public async Task<Market> GetMarketByIdAsync(int id)
         {
             return await _context.Markets.Include(m => m.MarketSubGroups)
-                .FirstOrDefaultAsync(m => m.MarketId == id);
+                .FirstOrDefaultAsync(m => m.Id == id);
         }
 
         // Fetch a market by its name
@@ -46,7 +46,7 @@ namespace Infrastructure.Repositories
         // Update an existing market
         public async Task<bool> UpdateMarketAsync(Market market)
         {
-            var existingMarket = await _context.Markets.FindAsync(market.MarketId);
+            var existingMarket = await _context.Markets.FindAsync(market.Id);
             if (existingMarket == null)
             {
                 return false;
@@ -55,7 +55,7 @@ namespace Infrastructure.Repositories
             existingMarket.MarketName = market.MarketName;
             existingMarket.MarketCode = market.MarketCode;
             existingMarket.LongMarketCode = market.LongMarketCode;
-            existingMarket.CountryList = market.CountryList;
+           
             existingMarket.UpdatedAt = market.UpdatedAt;
 
             _context.Markets.Update(existingMarket);

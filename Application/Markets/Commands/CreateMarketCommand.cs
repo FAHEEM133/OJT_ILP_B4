@@ -12,6 +12,6 @@ namespace Application.Markets.Commands
         public string MarketName { get; set; }
         public string MarketCode { get; set; }
         public string LongMarketCode { get; set; }
-        public string CountryList { get; set; }
+     
     }
 }
