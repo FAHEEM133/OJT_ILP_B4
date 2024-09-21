@@ -1,13 +1,12 @@
-﻿using Application.Markets.Commands;
-
+﻿using Application.Requests.MarketRequests;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace API.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
+    [ApiController]
     public class MarketController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -18,27 +17,28 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateMarket(CreateMarketCommand command)
+        public async Task<IActionResult> Create([FromBody] CreateMarketCommand command)
         {
-            var result = await _mediator.Send(command);
-            if (result == "Market created successfully")
-            {
-                return Ok(new { message = result });
-            }
-
-            return BadRequest(new { error = result });
+            var marketId = await _mediator.Send(command);
+            return CreatedAtAction(nameof(GetById), new { id = marketId }, marketId);
         }
 
-     /*   [HttpGet("{id}")]
-        public async Task<IActionResult> GetMarketById(int id)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
         {
-            var market = await _mediator.Send(new GetMarketByIdQuery(id));
-            if (market == null)
-            {
-                return NotFound();
-            }
+            var market = await _mediator.Send(new GetMarketByIdQuery { Id = id });
+            return market != null ? Ok(market) : NotFound();
+        }
 
-            return Ok(market);
-        }*/
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var markets = await _mediator.Send(new GetAllMarketsQuery());
+            return Ok(markets);
+        }
+
+      
+
+       
     }
 }
