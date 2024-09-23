@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Domain.Enums;
+using Domain.Enums.Domain.Enums;
 
 namespace Domain.Model
 {
-    public class Market
+    public class Market : AuditableEntity
     {
         public int Id { get; set; }  // Primary Key
 
@@ -22,12 +20,14 @@ namespace Domain.Model
         [Required]
         [MaxLength(50)]
         public string LongMarketCode { get; set; }  // Optional field for long code
-        //create abstract class for Created on,Updated on.
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        [Required]
+        public Region Region { get; set; }  // Enum for Region
+
+        [Required]
+        public SubRegion SubRegion { get; set; }  // Enum for SubRegion
 
         // Navigation property for related MarketSubGroups
         public List<MarketSubGroup> MarketSubGroups { get; set; } = new List<MarketSubGroup>();
     }
-
 }

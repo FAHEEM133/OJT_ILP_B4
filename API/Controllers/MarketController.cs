@@ -1,6 +1,5 @@
 ﻿using Application.Requests.MarketRequests;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -36,9 +35,5 @@ namespace API.Controllers
             var markets = await _mediator.Send(new GetAllMarketsQuery());
             return Ok(markets);
         }
-
-      
-
-       
     }
 }
