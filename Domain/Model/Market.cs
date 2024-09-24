@@ -11,11 +11,11 @@ namespace Domain.Model
 
         [Required]
         [MaxLength(150)]
-        public string MarketName { get; set; }  // Unique
+        public string Name { get; set; }  // Unique
 
         [Required]
         [MaxLength(2)]
-        public string MarketCode { get; set; }  // Unique, 2 letters
+        public string Code { get; set; }  // Unique, 2 letters
 
         [Required]
         [MaxLength(50)]
