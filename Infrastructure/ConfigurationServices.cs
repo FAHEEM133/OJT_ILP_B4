@@ -1,6 +1,4 @@
 ﻿using Infrastructure.Data;
-using Infrastructure.Repositories;
-using Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +14,7 @@ namespace Infrastructure
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
             // Register Repositories
-            services.AddScoped<IMarketRepository, MarketRepository>();
+            
 
             // Add other infrastructure services if needed
 

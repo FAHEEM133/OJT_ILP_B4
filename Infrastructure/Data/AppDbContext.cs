@@ -25,11 +25,11 @@ namespace Infrastructure.Data
 
             // Define the unique constraints for Market entity
             modelBuilder.Entity<Market>()
-                .HasIndex(m => m.MarketName)
+                .HasIndex(m => m.Name)
                 .IsUnique();
 
             modelBuilder.Entity<Market>()
-                .HasIndex(m => m.MarketCode)
+                .HasIndex(m => m.Code)
                 .IsUnique();
 
             // Define the composite unique constraint for MarketSubGroup within a Market
