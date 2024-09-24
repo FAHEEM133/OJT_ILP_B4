@@ -1,12 +1,13 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initialcommit : Migration
+    public partial class InitialPostgressMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,31 +16,30 @@ namespace Infrastructure.Migrations
                 name: "Markets",
                 columns: table => new
                 {
-                    MarketId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    MarketName = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    MarketCode = table.Column<string>(type: "nvarchar(2)", maxLength: 2, nullable: false),
-                    LongMarketCode = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    CountryList = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    MarketName = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
+                    MarketCode = table.Column<string>(type: "character varying(2)", maxLength: 2, nullable: false),
+                    LongMarketCode = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Markets", x => x.MarketId);
+                    table.PrimaryKey("PK_Markets", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "MarketSubGroups",
                 columns: table => new
                 {
-                    SubGroupId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    SubGroupName = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    SubGroupCode = table.Column<string>(type: "nvarchar(1)", maxLength: 1, nullable: false),
-                    MarketId = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    SubGroupId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    SubGroupName = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
+                    SubGroupCode = table.Column<string>(type: "character varying(1)", maxLength: 1, nullable: false),
+                    MarketId = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -48,7 +48,7 @@ namespace Infrastructure.Migrations
                         name: "FK_MarketSubGroups_Markets_MarketId",
                         column: x => x.MarketId,
                         principalTable: "Markets",
-                        principalColumn: "MarketId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 

@@ -9,16 +9,18 @@ namespace Infrastructure
     {
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
-            // Register DbContext with connection string from configuration
+            // Register DbContext with PostgreSQL connection string from configuration
             services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
             // Register Repositories
-            
+
 
             // Add other infrastructure services if needed
 
             return services;
         }
+
+
     }
 }
