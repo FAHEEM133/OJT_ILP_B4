@@ -49,7 +49,6 @@ namespace Application.Requests.SubGroupRequests
                 throw new Exception("Market not found");
             }
 
-            // Validate uniqueness within the Market
             var exists = await _context.MarketSubGroups.AnyAsync(
                 sg => sg.MarketId == request.MarketId &&
                       (sg.SubGroupName == request.SubGroupName || sg.SubGroupCode == request.SubGroupCode),
@@ -71,11 +70,9 @@ namespace Application.Requests.SubGroupRequests
                 UpdatedAt = DateTime.UtcNow
             };
 
-            // Add and save the entity
             _context.MarketSubGroups.Add(marketSubGroup);
             await _context.SaveChangesAsync(cancellationToken);
 
-            // Return the SubGroupId of the created entity  
             return marketSubGroup.SubGroupId;
         }
     }

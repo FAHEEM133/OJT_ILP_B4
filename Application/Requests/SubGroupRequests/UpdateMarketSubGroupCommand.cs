@@ -10,12 +10,12 @@ namespace Application.Requests.SubGroupRequests
 {
     public class UpdateMarketSubGroupCommand : IRequest<int>
     {
-        public int SubGroupId { get; set; }  // Primary Key
+        public int SubGroupId { get; set; } 
 
-        public string SubGroupName { get; set; }  // Unique within the same market
+        public string SubGroupName { get; set; }  
 
-        public string SubGroupCode { get; set; }  // Unique within the same market
+        public string SubGroupCode { get; set; }  
 
-        public int MarketId { get; set; }  // Foreign Key to Market
+        public int MarketId { get; set; } 
     }
 }

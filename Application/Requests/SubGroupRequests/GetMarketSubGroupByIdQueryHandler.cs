@@ -40,9 +40,8 @@ namespace Application.Requests.SubGroupRequests
 
         public async Task<MarketSubGroup> Handle(GetMarketSubGroupByIdQuery request, CancellationToken cancellationToken)
         {
-            // Find the MarketSubGroup by ID
             return await _context.MarketSubGroups
-                .Include(m => m.Market) // Include Market if needed for navigation properties
+                .Include(m => m.Market) 
                 .FirstOrDefaultAsync(m => m.SubGroupId == request.SubGroupId, cancellationToken);
         }
     }

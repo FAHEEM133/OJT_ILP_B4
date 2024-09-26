@@ -37,27 +37,23 @@ namespace Application.Requests.SubGroupRequests
          */
         public async Task<int> Handle(UpdateMarketSubGroupCommand request, CancellationToken cancellationToken)
         {
-            // Find the existing MarketSubGroup
             var existingSubGroup = await _context.MarketSubGroups
                 .FirstOrDefaultAsync(sg => sg.SubGroupId == request.SubGroupId, cancellationToken);
 
             if (existingSubGroup == null)
             {
-                // Optionally throw exception or return a specific error code if the entity is not found.
                 throw new KeyNotFoundException($"MarketSubGroup with Id {request.SubGroupId} not found.");
             }
 
-            // Update the properties
             existingSubGroup.SubGroupName = request.SubGroupName;
             existingSubGroup.SubGroupCode = request.SubGroupCode;
             existingSubGroup.MarketId = request.MarketId;
-            existingSubGroup.UpdatedAt = DateTime.UtcNow;  // Update the timestamp
+            existingSubGroup.UpdatedAt = DateTime.UtcNow;
 
-            // Save changes to the database
             _context.MarketSubGroups.Update(existingSubGroup);
             await _context.SaveChangesAsync(cancellationToken);
 
-            return existingSubGroup.SubGroupId;  // Return the updated SubGroupId
+            return existingSubGroup.SubGroupId;
         }
     }
 }

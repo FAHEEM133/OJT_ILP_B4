@@ -40,7 +40,6 @@ namespace Application.Requests.SubGroupRequests
          */
         public async Task<List<MarketSubGroup>> Handle(GetAllMarketSubGroupsQuery request, CancellationToken cancellationToken)
         {
-            // Directly return all MarketSubGroups from the database
             return await _context.MarketSubGroups.ToListAsync(cancellationToken);
         }
     }

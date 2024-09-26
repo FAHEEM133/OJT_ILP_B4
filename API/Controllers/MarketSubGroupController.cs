@@ -17,7 +17,6 @@ namespace API.Controllers
             _mediator = mediator;
         }
 
-        // GET: Get all MarketSubGroups
         [HttpGet]
         public async Task<ActionResult<List<MarketSubGroup>>> GetAllMarketSubGroups()
         {
@@ -53,7 +52,6 @@ namespace API.Controllers
             }
         }
 
-        // GET: api/MarketSubGroup/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetMarketSubGroupById(int id)
         {
@@ -67,7 +65,6 @@ namespace API.Controllers
             return Ok(subGroup);
         }
 
-        // PUT: api/MarketSubGroup/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateMarketSubGroup(int id, [FromBody] UpdateMarketSubGroupCommand command)
         {
@@ -97,7 +94,6 @@ namespace API.Controllers
         }
 
 
-        // DELETE: api/MarketSubGroup/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMarketSubGroup(int id)
         {
@@ -108,7 +104,7 @@ namespace API.Controllers
                 return NotFound(new { Message = "MarketSubGroup not found" });
             }
 
-            return NoContent(); // 204 No Content
+            return NoContent();
         }
     }
 }
