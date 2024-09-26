@@ -91,7 +91,7 @@ namespace API.Controllers
             return Ok(markets);
         }
 
-<<<<<<< HEAD
+
         [HttpDelete("{id}")]
 public async Task<IActionResult> DeleteMarketById(int id)
 {
@@ -106,7 +106,7 @@ public async Task<IActionResult> DeleteMarketById(int id)
     
     return result ? NoContent() : NotFound();
 }
-=======
+
         /*
          * Method: CheckMarketCodeExists
          * Handles the HTTP GET request to check if a market code already exists in the database.
@@ -154,6 +154,6 @@ public async Task<IActionResult> DeleteMarketById(int id)
             var exists = await _mediator.Send(new CheckMarketNameExistsQuery { Name = marketName });
             return Ok(exists);
         }
->>>>>>> 5fa7efa15c9090ae4e0c64691b39b5ab74ea656a
+
     }
 }
