@@ -90,5 +90,53 @@ namespace API.Controllers
             var markets = await _mediator.Send(new GetAllMarketsQuery());
             return Ok(markets);
         }
+
+        /*
+         * Method: CheckMarketCodeExists
+         * Handles the HTTP GET request to check if a market code already exists in the database.
+         * 
+         * Parameters:
+         * - marketCode: string - The market code to check for existence.
+         * 
+         * Returns:
+         * - Task<IActionResult>: Asynchronously returns true if the market code exists; otherwise, returns false.
+         */
+        [HttpGet("check-code")]
+        public async Task<IActionResult> CheckMarketCodeExists([FromQuery] string marketCode)
+        {
+            /*
+             * LLD Steps:
+             * 1. Create a CheckMarketCodeExistsQuery object with the provided marketCode.
+             * 2. Send the query to the mediator for processing.
+             * 3. Await the result, which will be a boolean value indicating whether the market code exists.
+             * 4. Return the result in an Ok response, which will be true if the market code exists, and false otherwise.
+             */
+            var exists = await _mediator.Send(new CheckMarketCodeExistsQuery { Code = marketCode });
+            return Ok(exists);
+        }
+
+        /*
+         * Method: CheckMarketNameExists
+         * Handles the HTTP GET request to check if a market name already exists in the database.
+         * 
+         * Parameters:
+         * - marketName: string - The market name to check for existence.
+         * 
+         * Returns:
+         * - Task<IActionResult>: Asynchronously returns true if the market name exists; otherwise, returns false.
+         */
+        [HttpGet("check-name")]
+        public async Task<IActionResult> CheckMarketNameExists([FromQuery] string marketName)
+        {
+            /*
+             * LLD Steps:
+             * 1. Create a CheckMarketNameExistsQuery object with the provided marketName.
+             * 2. Send the query to the mediator for processing.
+             * 3. Await the result, which will be a boolean value indicating whether the market name exists.
+             * 4. Return the result in an Ok response, which will be true if the market name exists, and false otherwise.
+             */
+            var exists = await _mediator.Send(new CheckMarketNameExistsQuery { Name = marketName });
+            return Ok(exists);
+        }
     }
 }
