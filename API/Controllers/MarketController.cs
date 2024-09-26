@@ -90,5 +90,17 @@ namespace API.Controllers
             var markets = await _mediator.Send(new GetAllMarketsQuery());
             return Ok(markets);
         }
+
+        [HttpGet("{id}/details")]
+        public async Task<IActionResult> GetMarketDetailsById(int id)
+        {
+            var marketDetails = await _mediator.Send(new GetMarketDetailsByIdQuery { MarketId = id });
+
+            if (marketDetails == null)
+                return NotFound($"Market with ID {id} not found");
+
+            return Ok(marketDetails);
+        }
     }
 }
+
