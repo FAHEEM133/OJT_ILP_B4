@@ -8,8 +8,8 @@ namespace Domain.Enums
 {
     public enum Region
     {
-        EURO = 1,    // Europe
-        LAAPA = 2,   // Latin America, Asia Pacific, and Africa
-        NOAM = 3     // North America
+        EURO = 1,   
+        LAAPA = 2,  
+        NOAM = 3    
     }
 }
