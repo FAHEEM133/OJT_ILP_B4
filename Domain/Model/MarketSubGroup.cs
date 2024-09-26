@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Domain.Model
@@ -23,6 +24,7 @@ namespace Domain.Model
         public int MarketId { get; set; }
 
         // Navigation property to Market
+        [JsonIgnore]
         public Market Market { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
