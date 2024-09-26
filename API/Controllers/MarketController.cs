@@ -90,5 +90,20 @@ namespace API.Controllers
             var markets = await _mediator.Send(new GetAllMarketsQuery());
             return Ok(markets);
         }
+
+        [HttpGet("check-code-exists")]
+        public async Task<IActionResult> CheckMarketCodeExists([FromQuery] string marketCode)
+        {
+            var exists = await _mediator.Send(new CheckMarketCodeExistsQuery { Code = marketCode });
+            return Ok(exists);
+        }
+
+        [HttpGet("check-market-name-exists")]
+        public async Task<IActionResult> CheckMarketNameExists([FromQuery] string marketName)
+        {
+            var exists = await _mediator.Send(new CheckMarketNameExistsQuery { Name = marketName });
+            return Ok(exists);
+        }
+
     }
 }
