@@ -17,10 +17,6 @@ namespace Infrastructure
 
             // Register Repositories
 
-=========
-            
->>>>>>>>> Temporary merge branch 2
-
             return services;
         }
 
