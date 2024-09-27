@@ -14,11 +14,12 @@ namespace Infrastructure
             services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
+
             // Register Repositories
 
-
+=========
             
-
+>>>>>>>>> Temporary merge branch 2
 
             return services;
         }
