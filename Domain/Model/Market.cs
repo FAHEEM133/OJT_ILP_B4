@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Domain.Enums;
 using Domain.Enums.Domain.Enums;
-
 namespace Domain.Model
 {
     public class Market : AuditableEntity
