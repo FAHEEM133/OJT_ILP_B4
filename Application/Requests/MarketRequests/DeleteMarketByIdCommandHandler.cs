@@ -3,6 +3,7 @@ using Infrastructure.Data;
 using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore; // For Entity Framework Core methods
 
 namespace Application.Requests.MarketRequests
 {
@@ -10,53 +11,50 @@ namespace Application.Requests.MarketRequests
     {
         private readonly AppDbContext _context;
 
-        /*
-         * Constructor: DeleteMarketByIdCommandHandler
-         * Initializes the handler with the database context.
-         * 
-         * Parameters:
-         * - context: AppDbContext - The application's database context used to interact with the database.
-         */
         public DeleteMarketByIdCommandHandler(AppDbContext context)
         {
             _context = context;
         }
 
         /*
-         * Method: Handle
-         * Deletes a market entry from the database based on the provided market ID.
-         * 
-         * Parameters:
-         * - request: DeleteMarketByIdCommand - The command object containing the market ID to be deleted.
-         * - cancellationToken: CancellationToken - Token for handling operation cancellation.
-         * 
-         * Returns:
-         * - Task<bool>: Asynchronously returns true if the market was successfully deleted, or false if not found.
-         */
+  * Method: Handle
+  * Responsibility: Deletes a market by ID, but only if there are no associated subgroups.
+  * 
+  * Steps:
+  * 1. Retrieve the market by ID, including any subgroups.
+  * 2. If the market is not found, return false (no deletion).
+  * 3. Check if the market has any subgroups.
+  * 4. If the market has subgroups, return false (cannot delete).
+  * 5. If no subgroups exist, proceed to delete the market.
+  * 6. Save the changes to the database and return true (deletion successful).
+  */
         public async Task<bool> Handle(DeleteMarketByIdCommand request, CancellationToken cancellationToken)
         {
-            /*
-             * LLD Steps:
-             * 1. Use the AppDbContext to access the Markets DbSet.
-             * 2. Call the `FindAsync` method on the Markets DbSet with the provided market ID from the request.
-             * 3. Pass the market ID as an object array to `FindAsync`.
-             * 4. Include the cancellationToken in the `FindAsync` call to handle cancellation.
-             * 5. Await the asynchronous call to retrieve the market entity with the specified ID.
-             * 6. If the market is not found, return false to indicate failure.
-             * 7. If the market is found, remove it from the DbSet.
-             * 8. Save changes asynchronously and return true to indicate success.
-             */
-            var market = await _context.Markets.FindAsync(new object[] { request.Id }, cancellationToken);
+            // Step 1: Retrieve the market by ID, including its subgroups
+            var market = await _context.Markets
+                                       .Include(m => m.MarketSubGroups) // Including subgroups related to the market
+                                       .FirstOrDefaultAsync(m => m.Id == request.Id, cancellationToken);
 
+            // Step 2: If the market is not found, return false
             if (market == null)
             {
                 return false; // Market with the specified ID not found
             }
 
-            _context.Markets.Remove(market); // Remove the found market
-            await _context.SaveChangesAsync(cancellationToken); // Save changes to the database
+            // Step 3: Check if the market has any associated subgroups
+            if (market.MarketSubGroups != null && market.MarketSubGroups.Count > 0)
+            {
+                return false; // Market has subgroups, so it can't be deleted
+            }
+
+            // Step 5: Proceed to delete the market if no subgroups are found
+            _context.Markets.Remove(market); // Removing the market from the DbSet
+
+            // Step 6: Save changes to the database
+            await _context.SaveChangesAsync(cancellationToken); // Save changes asynchronously
 
             return true; // Deletion successful
         }
+
     }
 }
