@@ -12,7 +12,7 @@ namespace Application.Requests.MarketRequests
 
         /*
          * Constructor: GetMarketByIdQueryHandler
-         * Initializes the handler with the database context.
+         * Initializes the handler with the database context.   
          * 
          * Parameters:
          * - context: AppDbContext - The application's database context used to interact with the database.
