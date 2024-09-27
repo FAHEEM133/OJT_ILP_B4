@@ -93,9 +93,27 @@ namespace API.Controllers
             return Ok(exists);
         }
 
+        /*
+          * Method: GetMarketDetailsById
+          * Handles the HTTP GET request to retrieve the details of a specific market by its ID.
+          * 
+          * Parameters:
+          * - id: int - The ID of the market whose details are to be retrieved.
+          * 
+          * Returns:
+          * - Task<IActionResult>: Asynchronously returns the details of the market if found, or a NotFound response if no such market exists.
+  */
         [HttpGet("{id}/details")]
         public async Task<IActionResult> GetMarketDetailsById(int id)
         {
+            /*
+             * LLD Steps:
+             * 1. Create a GetMarketDetailsByIdQuery object with the provided marketId.
+             * 2. Send the query to the mediator for processing.
+             * 3. Await the result, which will be the details of the market with the given ID.
+             * 4. If the market is found, return the market details in an Ok response.
+             * 5. If no market is found, return a NotFound response with a message indicating the missing market ID.
+             */
             var marketDetails = await _mediator.Send(new GetMarketDetailsByIdQuery { MarketId = id });
 
             if (marketDetails == null)
@@ -103,6 +121,7 @@ namespace API.Controllers
 
             return Ok(marketDetails);
         }
+
     }
 }
 
