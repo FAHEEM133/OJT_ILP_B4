@@ -93,19 +93,19 @@ namespace API.Controllers
 
 
         [HttpDelete("{id}")]
-public async Task<IActionResult> DeleteMarketById(int id)
-{
-    /*
-     * LLD Steps:
-     * 1. Create a DeleteMarketByIdCommand with the provided ID.
-     * 2. Send the command to the mediator for processing.
-     * 3. Await the result, which should indicate whether the deletion was successful.
-     * 4. Return NoContent if the deletion was successful, or NotFound if no entity exists with that ID.
-     */
-    var result = await _mediator.Send(new DeleteMarketCommand { Id = id });
+        public async Task<IActionResult> DeleteMarketById(int id)
+        {
+            /*
+             * LLD Steps:
+            * 1. Create a DeleteMarketByIdCommand with the provided ID.
+             * 2. Send the command to the mediator for processing.
+             * 3. Await the result, which should indicate whether the deletion was successful.
+             * 4. Return NoContent if the deletion was successful, or NotFound if no entity exists with that ID.
+            */
+            var result = await _mediator.Send(new DeleteMarketCommand { Id = id });
     
-    return result ? NoContent() : NotFound();
-}
+            return result ? NoContent() : NotFound();
+        }
 
         /*
          * Method: CheckMarketCodeExists
