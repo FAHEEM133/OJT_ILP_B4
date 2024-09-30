@@ -1,4 +1,5 @@
-﻿using Domain.Model;
+﻿using Application.DTOs;
+using Domain.Model;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Application.Requests.SubGroupRequests
 {
-    public class GetMarketSubGroupByIdQuery : IRequest<MarketSubGroup>
+    public class GetMarketSubGroupByIdQuery : IRequest<MarketSubGroupDTO>
     {
         public int SubGroupId { get; set; }
 
