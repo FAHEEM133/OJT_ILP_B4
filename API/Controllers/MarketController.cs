@@ -102,7 +102,7 @@ public async Task<IActionResult> DeleteMarketById(int id)
      * 3. Await the result, which should indicate whether the deletion was successful.
      * 4. Return NoContent if the deletion was successful, or NotFound if no entity exists with that ID.
      */
-    var result = await _mediator.Send(new DeleteMarketByIdCommand { Id = id });
+    var result = await _mediator.Send(new DeleteMarketCommand { Id = id });
     
     return result ? NoContent() : NotFound();
 }
