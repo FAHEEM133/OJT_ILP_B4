@@ -1,59 +1,50 @@
 ﻿using MediatR;
-using Domain.Model;
-using Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
 using System.Threading;
 using System.Threading.Tasks;
+using Application.DTOs;
+using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace Application.Requests.SubGroupRequests
 {
-
-    /**
-     * @class UpdateMarketSubGroupCommandHandler
-     * Handles the update operation for an existing MarketSubGroup entity.
-     */
-    public class UpdateMarketSubGroupCommandHandler : IRequestHandler<UpdateMarketSubGroupCommand, int>
+    public class UpdateMarketSubGroupCommandHandler : IRequestHandler<UpdateMarketSubGroupCommand, MarketSubGroupDTO>
     {
         private readonly AppDbContext _context;
 
-        /**
-         * Constructor
-         * @param context AppDbContext - Injected database context for interacting with MarketSubGroup entities.
-         */
         public UpdateMarketSubGroupCommandHandler(AppDbContext context)
         {
             _context = context;
         }
 
-        /**
-         * Handles the update command for an existing MarketSubGroup.
-         * @param request UpdateMarketSubGroupCommand - Contains the updated data for the MarketSubGroup.
-         * @param cancellationToken CancellationToken - Allows cancellation of the task.
-         * 
-         * Retrieves the existing MarketSubGroup from the database, updates its properties, and saves the changes.
-         * 
-         * @return int - Returns the SubGroupId of the updated MarketSubGroup.
-         * @throws KeyNotFoundException - If the MarketSubGroup is not found.
-         */
-        public async Task<int> Handle(UpdateMarketSubGroupCommand request, CancellationToken cancellationToken)
+        public async Task<MarketSubGroupDTO> Handle(UpdateMarketSubGroupCommand request, CancellationToken cancellationToken)
         {
-            var existingSubGroup = await _context.MarketSubGroups
+            // Fetch the existing MarketSubGroup entity
+            var subGroup = await _context.MarketSubGroups
+                .Include(sg => sg.Market) // Include the related Market entity
                 .FirstOrDefaultAsync(sg => sg.SubGroupId == request.SubGroupId, cancellationToken);
 
-            if (existingSubGroup == null)
-            {
-                throw new KeyNotFoundException($"MarketSubGroup with Id {request.SubGroupId} not found.");
-            }
+            // Check if the entity was found
+            if (subGroup == null) return null;
 
-            existingSubGroup.SubGroupName = request.SubGroupName;
-            existingSubGroup.SubGroupCode = request.SubGroupCode;
-            existingSubGroup.MarketId = request.MarketId;
-            existingSubGroup.UpdatedAt = DateTime.UtcNow;
+            // Update the MarketSubGroup entity with new data from the request
+            subGroup.SubGroupName = request.SubGroupName;
+            subGroup.SubGroupCode = request.SubGroupCode;
+            subGroup.MarketId = request.MarketId;
+            subGroup.UpdatedAt = DateTime.UtcNow;
 
-            _context.MarketSubGroups.Update(existingSubGroup);
+            // Save the changes in the database
             await _context.SaveChangesAsync(cancellationToken);
 
-            return existingSubGroup.SubGroupId;
+            // Return the updated entity as a DTO
+            return new MarketSubGroupDTO
+            {
+                SubGroupId = subGroup.SubGroupId,
+                SubGroupName = subGroup.SubGroupName,
+                SubGroupCode = subGroup.SubGroupCode,
+                MarketId = subGroup.MarketId,
+                MarketCode = subGroup.Market.Code // Map MarketCode from the related Market entity
+            };
         }
     }
 }

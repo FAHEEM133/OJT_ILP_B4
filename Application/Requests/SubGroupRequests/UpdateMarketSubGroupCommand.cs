@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Application.DTOs;
+using MediatR;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -8,14 +9,19 @@ using System.Threading.Tasks;
 
 namespace Application.Requests.SubGroupRequests
 {
-    public class UpdateMarketSubGroupCommand : IRequest<int>
+    public class UpdateMarketSubGroupCommand : IRequest<MarketSubGroupDTO>
     {
-        public int SubGroupId { get; set; } 
+        public int SubGroupId { get; set; }
 
-        public string SubGroupName { get; set; }  
+        [Required]
+        [MaxLength(150)]
+        public string SubGroupName { get; set; }
 
-        public string SubGroupCode { get; set; }  
+        [Required]
+        [MaxLength(1)]
+        public string SubGroupCode { get; set; }
 
-        public int MarketId { get; set; } 
+        [Required]
+        public int MarketId { get; set; }
     }
 }

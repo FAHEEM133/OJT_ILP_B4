@@ -10,8 +10,17 @@ namespace Application.Requests.SubGroupRequests
 {
     public class CreateMarketSubGroupCommand : IRequest<int>
     {
+        [Required]
+        [MaxLength(150)]
         public string SubGroupName { get; set; }
+
+        [Required]
+        [MaxLength(1)]
         public string SubGroupCode { get; set; }
-        public int MarketId { get; set; }
+
+
+        [Required]
+        [MaxLength(2)]
+        public string MarketCode { get; set; }
     }
 }

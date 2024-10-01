@@ -1,8 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Application.Requests.SubGroupRequests;
-using Domain.Model;
-using Microsoft.EntityFrameworkCore;
+using Application.DTOs; // Include the DTO namespace
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace API.Controllers
 {
@@ -17,12 +18,13 @@ namespace API.Controllers
             _mediator = mediator;
         }
 
+        // GET: api/MarketSubGroup
         [HttpGet]
-        public async Task<ActionResult<List<MarketSubGroup>>> GetAllMarketSubGroups()
+        public async Task<ActionResult<List<MarketSubGroupDTO>>> GetAllMarketSubGroups([FromQuery] string? marketCode)
         {
             try
             {
-                var subGroups = await _mediator.Send(new GetAllMarketSubGroupsQuery());
+                var subGroups = await _mediator.Send(new GetAllMarketSubGroupsQuery(marketCode));
                 return Ok(subGroups);
             }
             catch (System.Exception ex)
@@ -31,8 +33,7 @@ namespace API.Controllers
             }
         }
 
-
-
+        // POST: api/MarketSubGroup
         [HttpPost]
         public async Task<IActionResult> CreateMarketSubGroup([FromBody] CreateMarketSubGroupCommand command)
         {
@@ -52,6 +53,7 @@ namespace API.Controllers
             }
         }
 
+        // GET: api/MarketSubGroup/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetMarketSubGroupById(int id)
         {
@@ -65,6 +67,7 @@ namespace API.Controllers
             return Ok(subGroup);
         }
 
+        // PUT: api/MarketSubGroup/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateMarketSubGroup(int id, [FromBody] UpdateMarketSubGroupCommand command)
         {
@@ -93,7 +96,7 @@ namespace API.Controllers
             }
         }
 
-
+        // DELETE: api/MarketSubGroup/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMarketSubGroup(int id)
         {
