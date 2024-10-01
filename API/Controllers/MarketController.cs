@@ -48,7 +48,7 @@ namespace API.Controllers
 
         /*
          * Method: GetMarketById
-         * Handles the HTTP GET request to retrieve a market entry by its ID.
+         * Handles the HTTP GET request to retrieve a market entry by its ID and to retireve the Details.
          * 
          * Parameters:
          * - id: int - The unique identifier of the market to retrieve.
