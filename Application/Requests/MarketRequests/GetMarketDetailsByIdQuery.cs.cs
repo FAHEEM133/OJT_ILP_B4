@@ -1,4 +1,4 @@
-﻿using Domain.Model;
+﻿using Application.DTOs;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace Application.Requests.MarketRequests
 {
-    public class GetMarketByIdQuery : IRequest<Market>
+    public class GetMarketDetailsByIdQuery : IRequest<MarketDetailsDto>
     {
-        public int Id { get; set; }
+        public int MarketId { get; set; }
     }
 }
