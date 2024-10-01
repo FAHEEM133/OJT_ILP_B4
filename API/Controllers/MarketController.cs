@@ -1,4 +1,5 @@
 ﻿using Application.Requests.MarketRequests;
+using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -137,6 +138,32 @@ namespace API.Controllers
              */
             var exists = await _mediator.Send(new CheckMarketNameExistsQuery { Name = marketName });
             return Ok(exists);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateMarketCommand command)
+        {
+            // Ensure the ID in the route matches the ID in the command
+            if (id != command.Id)
+            {
+                return BadRequest(new { message = "ID in the URL does not match the ID in the request body." });
+            }
+
+            /*
+             * LLD Steps:
+             * 1. Send the UpdateMarketCommand to the mediator for processing.
+             * 2. Await the result, which provides the ID of the updated market entry.
+             * 3. Return an OK response containing the updated market ID if successful.
+             */
+            try
+            {
+                var updatedMarketId = await _mediator.Send(command);
+                return Ok(new { message = "Market updated successfully.", id = updatedMarketId });
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Application.Validations;
-using Domain.Model;
 using Infrastructure.Data;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -29,38 +28,54 @@ namespace Application.Requests.MarketRequests
                 throw new ValidationException($"Market with ID {request.Id} not found.");
             }
 
-            // Step 2: Validate the SubRegion for the specified Region
-            if (!RegionSubRegionValidation.IsValidSubRegionForRegion(request.Region, request.SubRegion))
+            // Step 2: Validate the SubRegion for the specified Region if Region or SubRegion is being updated
+            if (request.Region != null && request.SubRegion != null)
             {
-                throw new ValidationException($"SubRegion {request.SubRegion} is not valid for the Region {request.Region}");
+                if (!RegionSubRegionValidation.IsValidSubRegionForRegion(request.Region, request.SubRegion))
+                {
+                    throw new ValidationException($"SubRegion {request.SubRegion} is not valid for the Region {request.Region}");
+                }
             }
 
-            // Step 3: Check for any existing market with the same name but different ID
-            var existingMarketByName = await _context.Markets
-                .FirstOrDefaultAsync(m => m.Name == request.Name && m.Id != request.Id, cancellationToken);
-
-            if (existingMarketByName != null)
+            // Step 3: Check for any existing market with the same name but a different ID, only if Name is being updated
+            if (request.Name != null)
             {
-                var validationError = new ValidationException(new ValidationResult("A market with this name already exists.", new[] { "Name" }), null, null);
-                throw validationError;
+                var existingMarketByName = await _context.Markets
+                    .FirstOrDefaultAsync(m => m.Name == request.Name && m.Id != request.Id, cancellationToken);
+
+                if (existingMarketByName != null)
+                {
+                    throw new ValidationException(new ValidationResult("A market with this name already exists.", new[] { "Name" }), null, null);
+                }
             }
 
-            // Step 4: Check for any existing market with the same code but different ID
-            var existingMarketByCode = await _context.Markets
-                .FirstOrDefaultAsync(m => m.Code == request.Code && m.Id != request.Id, cancellationToken);
-
-            if (existingMarketByCode != null)
+            // Step 4: Check for any existing market with the same code but a different ID, only if Code is being updated
+            if (request.Code != null)
             {
-                var validationError = new ValidationException(new ValidationResult("A market with this code already exists.", new[] { "Code" }), null, null);
-                throw validationError;
+                var existingMarketByCode = await _context.Markets
+                    .FirstOrDefaultAsync(m => m.Code == request.Code && m.Id != request.Id, cancellationToken);
+
+                if (existingMarketByCode != null)
+                {
+                    throw new ValidationException(new ValidationResult("A market with this code already exists.", new[] { "Code" }), null, null);
+                }
             }
 
-            // Step 5: Update the existing market entry with the new values
-            existingMarket.Name = request.Name;
-            existingMarket.Code = request.Code;
-            existingMarket.LongMarketCode = request.LongMarketCode;
-            existingMarket.Region = request.Region;
-            existingMarket.SubRegion = request.SubRegion;
+            // Step 5: Update only the properties that are not null
+            if (request.Name != null)
+                existingMarket.Name = request.Name;
+
+            if (request.Code != null)
+                existingMarket.Code = request.Code;
+
+            if (request.LongMarketCode != null)
+                existingMarket.LongMarketCode = request.LongMarketCode;
+
+            if (request.Region != null)
+                existingMarket.Region = request.Region;
+
+            if (request.SubRegion != null)
+                existingMarket.SubRegion = request.SubRegion;
 
             // Step 6: Save changes to the database
             _context.Markets.Update(existingMarket);
