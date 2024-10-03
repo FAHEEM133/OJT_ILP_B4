@@ -1,4 +1,5 @@
 ﻿using Application.Requests.MarketRequests;
+using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -59,15 +60,13 @@ namespace API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetMarketById(int id)
         {
-            /*
-             * LLD Steps:
-             * 1. Create a GetMarketByIdQuery with the provided ID.
-             * 2. Send the query to the mediator for processing.
-             * 3. Await the result, which should be the market entity matching the provided ID.
-             * 4. Return the market entity in an Ok response if found, or NotFound if no entity exists with that ID.
-             */
-            var market = await _mediator.Send(new GetMarketDetailsByIdQuery { MarketId = id });
-            return market != null ? Ok(market) : NotFound();
+            var market = await _mediator.Send(new GetMarketByIdQuery(id));
+            if (market == null)
+            {
+                return NotFound("Market not found.");
+            }
+
+            return Ok(market);
         }
 
         /*
@@ -91,16 +90,16 @@ namespace API.Controllers
             return Ok(markets);
         }
 
-                    /*
-            * Method: GetMarketDetailsById
-            * Handles the HTTP GET request to retrieve the details of a specific market by its ID.
-            * 
-            * Parameters:
-            * - id: int - The ID of the market whose details are to be retrieved.
-            * 
-            * Returns:
-            * - Task<IActionResult>: Asynchronously returns the details of the market if found, or a NotFound response if no such market exists.
-            */
+        /*
+* Method: GetMarketDetailsById
+* Handles the HTTP GET request to retrieve the details of a specific market by its ID.
+* 
+* Parameters:
+* - id: int - The ID of the market whose details are to be retrieved.
+* 
+* Returns:
+* - Task<IActionResult>: Asynchronously returns the details of the market if found, or a NotFound response if no such market exists.
+*/
         [HttpGet("{id}/details")]
         public async Task<IActionResult> GetMarketDetailsById(int id)
         {
@@ -118,6 +117,116 @@ namespace API.Controllers
                 return NotFound($"Market with ID {id} not found");
 
             return Ok(marketDetails);
+        }
+
+
+        /*
+         * Method: CheckMarketCodeExists
+         * Handles the HTTP GET request to check if a market code already exists in the database.
+         * 
+         * Parameters:
+         * - marketCode: string - The market code to check for existence.
+         * 
+         * Returns:
+         * - Task<IActionResult>: Asynchronously returns true if the market code exists; otherwise, returns false.
+         */
+        [HttpGet("check-code")]
+        public async Task<IActionResult> CheckMarketCodeExists([FromQuery] string marketCode)
+        {
+            /*
+             * LLD Steps:
+             * 1. Create a CheckMarketCodeExistsQuery object with the provided marketCode.
+             * 2. Send the query to the mediator for processing.
+             * 3. Await the result, which will be a boolean value indicating whether the market code exists.
+             * 4. Return the result in an Ok response, which will be true if the market code exists, and false otherwise.
+             */
+            var exists = await _mediator.Send(new CheckMarketCodeExistsQuery { Code = marketCode });
+            return Ok(exists);
+        }
+
+
+        /*
+         * Method: CheckMarketNameExists
+         * Handles the HTTP GET request to check if a market name already exists in the database.
+         * 
+         * Parameters:
+         * - marketName: string - The market name to check for existence.
+         * 
+         * Returns:
+         * - Task<IActionResult>: Asynchronously returns true if the market name exists; otherwise, returns false.
+         */
+        [HttpGet("check-name")]
+        public async Task<IActionResult> CheckMarketNameExists([FromQuery] string marketName)
+        {
+            /*
+             * LLD Steps:
+             * 1. Create a CheckMarketNameExistsQuery object with the provided marketName.
+             * 2. Send the query to the mediator for processing.
+             * 3. Await the result, which will be a boolean value indicating whether the market name exists.
+             * 4. Return the result in an Ok response, which will be true if the market name exists, and false otherwise.
+             */
+            var exists = await _mediator.Send(new CheckMarketNameExistsQuery { Name = marketName });
+            return Ok(exists);
+        }
+
+        /*
+        * Method: Update
+        * Handles the HTTP PUT request to update an existing market entry.
+        * 
+        * Parameters:
+        * - id: int - The ID of the market to update (from the route).
+        * - command: UpdateMarketCommand - The command object containing updated market details (from the request body).
+        * 
+        * Returns:
+        * - Task<IActionResult>: Asynchronously returns a response indicating the result of the update operation.
+        */
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateMarketCommand command)
+        {
+            /*
+             LLD Steps:
+             * 1. Validate that the market ID provided in the URL route matches the ID in the command object (request body).
+             *    - If the IDs don't match, return a BadRequest response with an appropriate error message.
+             * 2. Send the `UpdateMarketCommand` to the mediator to handle the update logic.
+             *    - The `UpdateMarketCommand` contains the updated market data and is processed by the respective handler.
+             * 3. Await the result from the mediator, which provides the ID of the updated market.
+             * 4. If the update is successful, return an Ok response with a success message and the updated market ID.
+             * 5. If a validation exception occurs (e.g., validation rules defined for the command are violated), catch the exception.
+             *    - Return a BadRequest response with the exception message detailing the validation failure.
+             
+             */
+            if (id != command.Id)
+            {
+                return BadRequest(new { message = "ID in the URL does not match the ID in the request body." });
+            }
+
+            try
+            {
+                var updatedMarketId = await _mediator.Send(command);
+                return Ok(new { message = "Market updated successfully.", id = updatedMarketId });
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteMarketById(int id)
+        {
+            /*
+             * LLD Steps:
+            * 1. Create a DeleteMarketByIdCommand with the provided ID.
+             * 2. Send the command to the mediator for processing.
+             * 3. Await the result, which should indicate whether the deletion was successful.
+             * 4. Return NoContent if the deletion was successful, or NotFound if no entity exists with that ID.
+            */
+            var result = await _mediator.Send(new DeleteMarketCommand { Id = id });
+
+            return result ? NoContent() : NotFound();
         }
 
     }
