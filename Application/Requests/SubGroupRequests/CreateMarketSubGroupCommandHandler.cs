@@ -43,9 +43,10 @@ namespace Application.Requests.SubGroupRequests
          */
         public async Task<int> Handle(CreateMarketSubGroupCommand request, CancellationToken cancellationToken)
         {
+            var lowerCaseMarketCode = request.MarketCode.ToLower();
             // Step 1: Validate if the Market exists using MarketCode
             var market = await _context.Markets
-                .FirstOrDefaultAsync(m => m.Code == request.MarketCode, cancellationToken);
+                .FirstOrDefaultAsync(m => m.Code == lowerCaseMarketCode, cancellationToken);
 
             if (market == null)
             {
@@ -65,6 +66,7 @@ namespace Application.Requests.SubGroupRequests
             // Convert SubGroupName and SubGroupCode to lowercase for case-insensitive comparison
             var lowerCaseSubGroupName = request.SubGroupName.ToLower();
             var lowerCaseSubGroupCode = request.SubGroupCode.ToLower();
+            
 
             // Step 3: Check if SubGroupName or SubGroupCode already exists in the given market using the found MarketId
             var isSubGroupNameExists = await _context.MarketSubGroups.AnyAsync(
@@ -114,7 +116,7 @@ namespace Application.Requests.SubGroupRequests
             var marketSubGroup = new MarketSubGroup
             {
                 SubGroupName = request.SubGroupName,
-                SubGroupCode = request.SubGroupCode,
+                SubGroupCode = lowerCaseSubGroupCode,
                 MarketId = marketId,  // Use the found MarketId
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
