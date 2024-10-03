@@ -6,7 +6,7 @@ namespace Application.Requests.MarketRequests
 {
     public class UpdateMarketCommand : IRequest<int>
     {
-        public int Id { get; set; } // ID of the market to update
+        public int Id { get; set; } 
         public string Name { get; set; }
         public string Code { get; set; }
         public string LongMarketCode { get; set; }
