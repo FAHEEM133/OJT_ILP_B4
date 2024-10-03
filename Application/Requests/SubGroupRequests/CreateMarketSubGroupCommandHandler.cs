@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Application.Requests.SubGroupRequests
@@ -42,30 +43,79 @@ namespace Application.Requests.SubGroupRequests
          */
         public async Task<int> Handle(CreateMarketSubGroupCommand request, CancellationToken cancellationToken)
         {
-            // Validate if the Market exists
-            var market = await _context.Markets.FindAsync(request.MarketId);
+            // Step 1: Validate if the Market exists using MarketCode
+            var market = await _context.Markets
+                .FirstOrDefaultAsync(m => m.Code == request.MarketCode, cancellationToken);
+
             if (market == null)
             {
                 throw new Exception("Market not found");
             }
 
-            var exists = await _context.MarketSubGroups.AnyAsync(
-                sg => sg.MarketId == request.MarketId &&
-                      (sg.SubGroupName == request.SubGroupName || sg.SubGroupCode == request.SubGroupCode),
+            // Step 2: Use the found MarketId instead of receiving it from the request
+            var marketId = market.Id;
+
+            // Ensure SubGroupName contains only alphabetic characters (case insensitive)
+            var nameRegex = new Regex("^[a-zA-Z]+$");
+            if (!nameRegex.IsMatch(request.SubGroupName))
+            {
+                throw new Exception("SubGroupName can only contain alphabetic characters.");
+            }
+
+            // Convert SubGroupName and SubGroupCode to lowercase for case-insensitive comparison
+            var lowerCaseSubGroupName = request.SubGroupName.ToLower();
+            var lowerCaseSubGroupCode = request.SubGroupCode.ToLower();
+
+            // Step 3: Check if SubGroupName or SubGroupCode already exists in the given market using the found MarketId
+            var isSubGroupNameExists = await _context.MarketSubGroups.AnyAsync(
+                sg => sg.MarketId == marketId &&
+                      sg.SubGroupName.ToLower() == lowerCaseSubGroupName,
                 cancellationToken
             );
 
-            if (exists)
+            var isSubGroupCodeExists = await _context.MarketSubGroups.AnyAsync(
+                sg => sg.MarketId == marketId &&
+                      sg.SubGroupCode.ToLower() == lowerCaseSubGroupCode,
+                cancellationToken
+            );
+
+            // If both SubGroupName and SubGroupCode are repeating together
+            var isBothExists = await _context.MarketSubGroups.AnyAsync(
+                sg => sg.MarketId == marketId &&
+                      sg.SubGroupName.ToLower() == lowerCaseSubGroupName &&
+                      sg.SubGroupCode == request.SubGroupCode,
+                cancellationToken
+            );
+
+            // Separate error messages for each validation
+            if (isBothExists)
             {
-                throw new Exception("A subgroup with the same name or code already exists within this market.");
+                throw new Exception("A subgroup with the same name and code already exists within this market.");
             }
 
-            
+            if (isSubGroupNameExists)
+            {
+                throw new Exception("A subgroup with the same name already exists within this market.");
+            }
+
+            if (isSubGroupCodeExists)
+            {
+                throw new Exception("A subgroup with the same code already exists within this market.");
+            }
+
+            // Step 4: Alphanumeric validation for SubGroupCode (already added)
+            var codeRegex = new Regex("^[a-zA-Z0-9]*$");
+            if (!codeRegex.IsMatch(request.SubGroupCode))
+            {
+                throw new Exception("Invalid format for subgroup code.");
+            }
+
+            // Step 5: Proceed to create the new MarketSubGroup using the found MarketId
             var marketSubGroup = new MarketSubGroup
             {
                 SubGroupName = request.SubGroupName,
                 SubGroupCode = request.SubGroupCode,
-                MarketId = request.MarketId,
+                MarketId = marketId,  // Use the found MarketId
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -75,5 +125,6 @@ namespace Application.Requests.SubGroupRequests
 
             return marketSubGroup.SubGroupId;
         }
+
     }
 }

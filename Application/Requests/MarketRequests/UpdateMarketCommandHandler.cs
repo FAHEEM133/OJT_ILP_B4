@@ -1,4 +1,5 @@
 ﻿using Application.Validations;
+using Domain.Model;
 using Infrastructure.Data;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -8,18 +9,61 @@ using System.Threading.Tasks;
 
 namespace Application.Requests.MarketRequests
 {
+    /**
+     * @class UpdateMarketCommandHandler
+     * 
+     * @description
+     * Handles the request to update an existing market. Implements the `IRequestHandler`
+     * interface from MediatR to manage the CQRS pattern. It performs validation, checks for 
+     * uniqueness of the name and code, and updates the relevant fields of a market entity.
+     * 
+     * @implements IRequestHandler<UpdateMarketCommand, int>
+     * The handler responds to the `UpdateMarketCommand` and returns the updated market's ID.
+     * 
+     * @dependencies
+     * - `AppDbContext`: Injected to access the database.
+     * - `RegionSubRegionValidation`: Used to validate the region and subregion relationship.
+     * 
+     * @methods
+     * - `Handle`: Main method that handles the command and updates the market details.
+     */
     public class UpdateMarketCommandHandler : IRequestHandler<UpdateMarketCommand, int>
     {
         private readonly AppDbContext _context;
 
+        /**
+         * @constructor
+         * 
+         * @param {AppDbContext} context
+         * Injects the `AppDbContext` to access the database for updating market data.
+         */
         public UpdateMarketCommandHandler(AppDbContext context)
         {
             _context = context;
         }
 
+        /**
+         * @method Handle
+         * 
+         * Handles the incoming request to update a market. It validates the provided data, checks for
+         * any existing market with the same name or code, and updates the market in the database.
+         * 
+         * @param {UpdateMarketCommand} request
+         * The command object containing the market details to be updated.
+         * 
+         * @param {CancellationToken} cancellationToken
+         * Used to cancel the asynchronous request if needed.
+         * 
+         * @returns {Task<int>}
+         * Returns the ID of the updated market entity.
+         * 
+         * @errorHandling
+         * - Throws `ValidationException` if the market is not found.
+         * - Throws `ValidationException` if the region-subregion relationship is invalid.
+         * - Throws `ValidationException` if a market with the same name or code already exists.
+         */
         public async Task<int> Handle(UpdateMarketCommand request, CancellationToken cancellationToken)
         {
-            // Step 1: Retrieve the existing market entry by ID
             var existingMarket = await _context.Markets
                 .FirstOrDefaultAsync(m => m.Id == request.Id, cancellationToken);
 
@@ -28,40 +72,35 @@ namespace Application.Requests.MarketRequests
                 throw new ValidationException($"Market with ID {request.Id} not found.");
             }
 
-            // Step 2: Validate the SubRegion for the specified Region if Region or SubRegion is being updated
-            if (request.Region != null && request.SubRegion != null)
+            if (!RegionSubRegionValidation.IsValidSubRegionForRegion(request.Region, request.SubRegion))
             {
-                if (!RegionSubRegionValidation.IsValidSubRegionForRegion(request.Region, request.SubRegion))
-                {
-                    throw new ValidationException($"SubRegion {request.SubRegion} is not valid for the Region {request.Region}");
-                }
+                throw new ValidationException($"SubRegion {request.SubRegion} is not valid for the Region {request.Region}");
             }
 
-            // Step 3: Check for any existing market with the same name but a different ID, only if Name is being updated
-            if (request.Name != null)
+            if (request.Name != null && existingMarket.Name != request.Name)
             {
                 var existingMarketByName = await _context.Markets
                     .FirstOrDefaultAsync(m => m.Name == request.Name && m.Id != request.Id, cancellationToken);
 
                 if (existingMarketByName != null)
                 {
-                    throw new ValidationException(new ValidationResult("A market with this name already exists.", new[] { "Name" }), null, null);
+                    var validationError = new ValidationException(new ValidationResult("A market with this name already exists.", new[] { "Name" }), null, null);
+                    throw validationError;
                 }
             }
 
-            // Step 4: Check for any existing market with the same code but a different ID, only if Code is being updated
-            if (request.Code != null)
+            if (request.Code != null && existingMarket.Code != request.Code)
             {
                 var existingMarketByCode = await _context.Markets
                     .FirstOrDefaultAsync(m => m.Code == request.Code && m.Id != request.Id, cancellationToken);
 
                 if (existingMarketByCode != null)
                 {
-                    throw new ValidationException(new ValidationResult("A market with this code already exists.", new[] { "Code" }), null, null);
+                    var validationError = new ValidationException(new ValidationResult("A market with this code already exists.", new[] { "Code" }), null, null);
+                    throw validationError;
                 }
             }
 
-            // Step 5: Update only the properties that are not null
             if (request.Name != null)
                 existingMarket.Name = request.Name;
 
@@ -71,17 +110,12 @@ namespace Application.Requests.MarketRequests
             if (request.LongMarketCode != null)
                 existingMarket.LongMarketCode = request.LongMarketCode;
 
-            if (request.Region != null)
-                existingMarket.Region = request.Region;
+            existingMarket.Region = request.Region;
+            existingMarket.SubRegion = request.SubRegion;
 
-            if (request.SubRegion != null)
-                existingMarket.SubRegion = request.SubRegion;
-
-            // Step 6: Save changes to the database
             _context.Markets.Update(existingMarket);
             await _context.SaveChangesAsync(cancellationToken);
 
-            // Step 7: Return the ID of the updated market entity
             return existingMarket.Id;
         }
     }
