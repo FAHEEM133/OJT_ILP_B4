@@ -12,6 +12,6 @@ namespace Application.DTOs
         public string SubGroupName { get; set; }
         public string SubGroupCode { get; set; }
         public int MarketId { get; set; }
-        public string MarketCode { get; set; } // Include MarketCode here
+        public string MarketCode { get; set; } 
     }
 }
