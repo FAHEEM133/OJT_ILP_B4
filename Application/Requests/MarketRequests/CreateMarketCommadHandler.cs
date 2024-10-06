@@ -100,17 +100,17 @@ namespace Application.Requests.MarketRequests
             };
 
             // Add any SubGroups if provided
-            if (request.SubGroups != null && request.SubGroups.Count > 0)
+            if (request.MarketSubGroups != null && request.MarketSubGroups.Count > 0)
             {
-                foreach (var subGroupDto in request.SubGroups)
+                foreach (var subGroupDto in request.MarketSubGroups)
                 {
-                    var subGroup = new MarketSubGroup
+                    var marketSubGroups = new MarketSubGroup
                     {
                         SubGroupName = subGroupDto.SubGroupName,
                         SubGroupCode = subGroupDto.SubGroupCode,
                         Market = market // Link SubGroup to the created market
                     };
-                    market.MarketSubGroups.Add(subGroup);
+                    market.MarketSubGroups.Add(marketSubGroups);
                 }
             }
             // Step 5: Add the new Market entity to the database context and save changes
@@ -130,7 +130,7 @@ namespace Application.Requests.MarketRequests
                 LongMarketCode = market.LongMarketCode,
                 Region = market.Region,
                 SubRegion = market.SubRegion,
-                SubGroups = market.MarketSubGroups.Select(sg => new
+                MarketSubGroups = market.MarketSubGroups.Select(sg => new
                 {
                     SubGroupName = sg.SubGroupName,
                     SubGroupCode = sg.SubGroupCode,

@@ -14,6 +14,6 @@ namespace Application.Requests.MarketRequests
         public Region Region { get; set; }  // Add Region
         public SubRegion SubRegion { get; set; }  // Add SubRegion
         // Use MarketSubGroupDTO for SubGroups
-        public List<MarketSubGroupDTO> SubGroups { get; set; } = new List<MarketSubGroupDTO>();
+        public List<MarketSubGroupDTO> MarketSubGroups { get; set; } = new List<MarketSubGroupDTO>();
     }
 }
