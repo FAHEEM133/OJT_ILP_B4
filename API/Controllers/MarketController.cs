@@ -91,15 +91,15 @@ namespace API.Controllers
         }
 
         /*
-* Method: GetMarketDetailsById
-* Handles the HTTP GET request to retrieve the details of a specific market by its ID.
-* 
-* Parameters:
-* - id: int - The ID of the market whose details are to be retrieved.
-* 
-* Returns:
-* - Task<IActionResult>: Asynchronously returns the details of the market if found, or a NotFound response if no such market exists.
-*/
+        * Method: GetMarketDetailsById
+        * Handles the HTTP GET request to retrieve the details of a specific market by its ID.
+        * 
+        * Parameters:
+        * - id: int - The ID of the market whose details are to be retrieved.
+        * 
+        * Returns:
+        * - Task<IActionResult>: Asynchronously returns the details of the market if found, or a NotFound response if no such market exists.
+        */
         [HttpGet("{id}/details")]
         public async Task<IActionResult> GetMarketDetailsById(int id)
         {
