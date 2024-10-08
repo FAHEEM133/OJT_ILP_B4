@@ -212,8 +212,6 @@ namespace API.Controllers
             }
         }
 
-
-
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMarketById(int id)
         {
