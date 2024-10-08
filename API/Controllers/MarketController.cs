@@ -69,25 +69,58 @@ namespace API.Controllers
             return Ok(market);
         }
 
-        /*
-         * Method: GetAllMarkets
-         * Handles the HTTP GET request to retrieve all market entries.
-         * 
-         * Returns:
-         * - Task<IActionResult>: Asynchronously returns a list of all market entries.
-         */
+         /*
+          * Method: GetAllMarkets
+          * Handles the HTTP GET request to retrieve a paginated list of markets.
+          * 
+          * Parameters:
+          * - pagenumber int the page number of the data
+          * -pagesize integre the number of data's shown in each page
+          * 
+          * Returns:
+          * - Task<IActionResult>: Asynchronously returns a 200 Ok response with the paginated market data and pagination metadata.
+          */
         [HttpGet]
-        public async Task<IActionResult> GetAllMarkets()
+        public async Task<IActionResult> GetAllMarkets([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             /*
-             * LLD Steps:
-             * 1. Create a new GetAllMarketsQuery.
-             * 2. Send the query to the mediator for processing.
-             * 3. Await the result, which should be a list of all market entities.
-             * 4. Return the list of market entities in an Ok response.
-             */
-            var markets = await _mediator.Send(new GetAllMarketsQuery());
-            return Ok(markets);
+              * LLD Steps:
+              * 1. Accept `pageNumber` and `pageSize` as query parameters from the HTTP request.
+              *    - If no values are provided, defaults to `pageNumber = 1` and `pageSize = 10`.
+              * 
+              * 2. Create a new `GetAllMarketsQuery` object with `pageNumber` and `pageSize` as parameters.
+              *    - The query object contains the necessary pagination parameters to fetch the appropriate page of data.
+              * 
+              * 3. Send the `GetAllMarketsQuery` to the mediator for processing.
+              *    - The mediator forwards this query to the appropriate handler (`GetAllMarketsQueryHandler`), which handles fetching the paginated data.
+              * 
+              * 4. Await the result from the mediator, which provides:
+              *    - `markets`: The list of markets for the requested page.
+              *    - `totalCount`: The total number of available market records.
+              * 
+              * 5. Return an HTTP `200 Ok` response containing the paginated data along with pagination metadata:
+              *    - `TotalCount`: The total number of market records in the database.
+              *    - `PageNumber`: The current page number that was requested.
+              *    - `PageSize`: The number of items per page.
+              *    - `Markets`: The list of market entries for the requested page.
+              */
+
+            var query = new GetAllMarketsQuery
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+
+            
+            var (markets, totalCount) = await _mediator.Send(query);
+
+            return Ok(new
+            {
+                TotalCount = totalCount,  
+                PageNumber = pageNumber, 
+                PageSize = pageSize,      
+                Markets = markets         
+            });
         }
 
         /*

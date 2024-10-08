@@ -135,10 +135,10 @@ namespace Application.Requests.MarketRequests
                     SubGroupName = sg.SubGroupName,
                     SubGroupCode = sg.SubGroupCode,
                     MarketCode = market.Code
-                }).ToList() // Select only required fields
+                }).ToList() 
             };
 
-            // Return the formatted response object
+           
             return response;
         }
     }

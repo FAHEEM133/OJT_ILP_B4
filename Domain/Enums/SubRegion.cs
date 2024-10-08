@@ -19,7 +19,9 @@ namespace Domain.Enums
             Africa = 4,
 
             // SubRegion for NOAM
-            NorthAmerica = 5
+            America = 5,
+            Canada  =6,
+            
         }
     }
 

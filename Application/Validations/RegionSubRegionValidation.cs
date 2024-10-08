@@ -10,7 +10,7 @@ namespace Application.Validations
         {
             { Region.EURO, new List<SubRegion> { SubRegion.Europe } },
             { Region.LAAPA, new List<SubRegion> { SubRegion.LatinAmerica, SubRegion.AsiaPacific, SubRegion.Africa } },
-            { Region.NOAM, new List<SubRegion> { SubRegion.NorthAmerica } }
+            { Region.NOAM, new List<SubRegion> { SubRegion.America,SubRegion.Canada } }
         };
 
         public static bool IsValidSubRegionForRegion(Region region, SubRegion subRegion)
