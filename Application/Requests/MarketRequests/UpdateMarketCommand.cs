@@ -1,10 +1,11 @@
-﻿using Domain.Enums; // Import the enums
+﻿using Application.DTOs;
+using Domain.Enums; // Import the enums
 using Domain.Enums.Domain.Enums;
 using MediatR;
 
 namespace Application.Requests.MarketRequests
 {
-    public class UpdateMarketCommand : IRequest<int>
+    public class UpdateMarketCommand : IRequest<object>
     {
         public int Id { get; set; } 
         public string Name { get; set; }
@@ -13,5 +14,6 @@ namespace Application.Requests.MarketRequests
 
         public Region Region { get; set; }  // Add Region
         public SubRegion SubRegion { get; set; }  // Add SubRegion
+        public List<MarketSubGroupDTO> MarketSubGroups { get; set; } = new List<DTOs.MarketSubGroupDTO>();
     }
 }

@@ -44,7 +44,7 @@ namespace Application.Requests.MarketRequests
              * 3. Pass the cancellationToken to the `ToListAsync` method to allow for operation cancellation if needed.
              * 4. Return the list of all Market entities retrieved from the database.
              */
-            return await _context.Markets.ToListAsync(cancellationToken);
+            return await _context.Markets.Include(m => m.MarketSubGroups).ToListAsync(cancellationToken);
         }
     }
 }

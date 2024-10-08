@@ -203,8 +203,8 @@ namespace API.Controllers
 
             try
             {
-                var updatedMarketId = await _mediator.Send(command);
-                return Ok(new { message = "Market updated successfully.", id = updatedMarketId });
+                var result = await _mediator.Send(command);
+                return Ok(result);
             }
             catch (ValidationException ex)
             {

@@ -33,26 +33,6 @@ namespace API.Controllers
             }
         }
 
-        // POST: api/MarketSubGroup
-        [HttpPost]
-        public async Task<IActionResult> CreateMarketSubGroup([FromBody] CreateMarketSubGroupCommand command)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            try
-            {
-                var result = await _mediator.Send(command);
-                return CreatedAtAction(nameof(CreateMarketSubGroup), new { id = result }, result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Message = ex.Message });
-            }
-        }
-
         // GET: api/MarketSubGroup/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetMarketSubGroupById(int id)
