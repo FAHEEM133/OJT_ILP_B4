@@ -79,9 +79,9 @@ namespace Application.Requests.MarketRequests
             // Map the Market entity to a DTO (Data Transfer Object)
             var marketDetails = new MarketDetailsDto
             {
-                MarketId = market.Id,               // Assign market ID
-                MarketName = market.Name,           // Assign market name
-                MarketCode = market.Code,           // Assign market code
+                Id = market.Id,               // Assign market ID
+                Name = market.Name,           // Assign market name
+                Code = market.Code,           // Assign market code
                 LongMarketCode = market.LongMarketCode, // Assign long market code
                 Region = regionString,              // Assign string value of region enum
                 SubRegion = subRegionString,        // Assign string value of subregion enum

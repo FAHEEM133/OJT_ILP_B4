@@ -23,9 +23,9 @@ public class SearchMarketQueryHandler : IRequestHandler<SearchMarketQuery, List<
         var markets = await _context.Markets
             .Select(m => new MarketDetailsDto
             {
-                MarketId = m.Id,
-                MarketName = m.Name,
-                MarketCode = m.Code,
+                Id = m.Id,
+                Name = m.Name,
+                Code = m.Code,
                 LongMarketCode = m.LongMarketCode,
                 Region = m.Region.ToString(),
                 SubRegion  = m.SubRegion.ToString(),
@@ -37,8 +37,8 @@ public class SearchMarketQueryHandler : IRequestHandler<SearchMarketQuery, List<
                 SubGroupCode = sg.SubGroupCode
             }).ToList() // Map the list of MarketSubGroup to MarketSubGroupDto
             })
-    .Where(m => m.MarketName.Contains(request.Name))
-    .ToListAsync(cancellationToken);
+            .Where(m => m.Name.Contains(request.Name))
+            .ToListAsync(cancellationToken);
 
         return markets;
     }
