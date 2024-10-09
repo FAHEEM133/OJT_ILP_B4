@@ -68,10 +68,10 @@ namespace Application.Requests.MarketRequests
             existingMarket.SubRegion = request.SubRegion;
 
             // Handle MarketSubGroups: Add, Update, Remove
-            var existingSubGroupIds = existingMarket.MarketSubGroups.Select(sg => sg.SubGroupId).ToList();
+            var existingSubGroups = existingMarket.MarketSubGroups.ToList();
 
             // Remove subgroups that are not in the request
-            var subGroupsToRemove = existingMarket.MarketSubGroups
+            var subGroupsToRemove = existingSubGroups
                 .Where(sg => !request.MarketSubGroups.Any(reqSg => reqSg.SubGroupId == sg.SubGroupId))
                 .ToList();
 
@@ -83,7 +83,7 @@ namespace Application.Requests.MarketRequests
             // Add or update subgroups
             foreach (var requestSubGroup in request.MarketSubGroups)
             {
-                var existingSubGroup = existingMarket.MarketSubGroups
+                var existingSubGroup = existingSubGroups
                     .FirstOrDefault(sg => sg.SubGroupId == requestSubGroup.SubGroupId);
 
                 if (existingSubGroup != null)
@@ -91,42 +91,47 @@ namespace Application.Requests.MarketRequests
                     // Update existing subgroup
                     existingSubGroup.SubGroupName = requestSubGroup.SubGroupName;
                     existingSubGroup.SubGroupCode = requestSubGroup.SubGroupCode;
-                    existingSubGroup.MarketId = existingMarket.Id;  // Ensure correct market linkage
+                    existingSubGroup.MarketId = existingMarket.Id;
                 }
                 else
                 {
                     // Add new subgroup
                     var newSubGroup = new MarketSubGroup
                     {
-                        SubGroupName = requestSubGroup.SubGroupName,
-                        SubGroupCode = requestSubGroup.SubGroupCode,
-                        Market = existingMarket
+                        SubGroupName = requestSubGroup.SubGroupName, // Convert to lowercase
+                        SubGroupCode = requestSubGroup.SubGroupCode, // Convert to lowercase
+                        MarketId = existingMarket.Id // Properly set the MarketId
                     };
-                    existingMarket.MarketSubGroups.Add(newSubGroup);
+                    _context.MarketSubGroups.Add(newSubGroup);
                 }
             }
 
             // Save changes
-            _context.Markets.Update(existingMarket);
             await _context.SaveChangesAsync(cancellationToken);
+
+            // Reload the market with updated subgroups to return the correct response
+            var updatedMarket = await _context.Markets
+                .Include(m => m.MarketSubGroups)
+                .FirstOrDefaultAsync(m => m.Id == request.Id, cancellationToken);
 
             // Return updated market and subgroups data
             return new
             {
-                id = existingMarket.Id,
-                name = existingMarket.Name,
-                code = existingMarket.Code,
-                longMarketCode = existingMarket.LongMarketCode,
-                region = (int)existingMarket.Region,
-                subRegion = (int)existingMarket.SubRegion,
-                marketSubGroups = existingMarket.MarketSubGroups.Select(sg => new
+                id = updatedMarket.Id,
+                name = updatedMarket.Name,
+                code = updatedMarket.Code,
+                longMarketCode = updatedMarket.LongMarketCode,
+                region = (int)updatedMarket.Region,
+                subRegion = (int)updatedMarket.SubRegion,
+                marketSubGroups = updatedMarket.MarketSubGroups.Select(sg => new
                 {
+                    subGroupId = sg.SubGroupId,
                     subGroupName = sg.SubGroupName,
                     subGroupCode = sg.SubGroupCode,
-                    MarketCode = existingMarket.Code
+                    marketId = sg.MarketId,
+                    marketCode = updatedMarket.Code
                 }).ToList()
             };
         }
     }
-
 }
