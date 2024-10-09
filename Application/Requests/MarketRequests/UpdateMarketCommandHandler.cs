@@ -89,8 +89,8 @@ namespace Application.Requests.MarketRequests
                 if (existingSubGroup != null)
                 {
                     // Update existing subgroup
-                    existingSubGroup.SubGroupName = requestSubGroup.SubGroupName.ToLower();
-                    existingSubGroup.SubGroupCode = requestSubGroup.SubGroupCode.ToLower();
+                    existingSubGroup.SubGroupName = requestSubGroup.SubGroupName;
+                    existingSubGroup.SubGroupCode = requestSubGroup.SubGroupCode;
                     existingSubGroup.MarketId = existingMarket.Id;
                 }
                 else
@@ -98,8 +98,8 @@ namespace Application.Requests.MarketRequests
                     // Add new subgroup
                     var newSubGroup = new MarketSubGroup
                     {
-                        SubGroupName = requestSubGroup.SubGroupName.ToLower(), // Convert to lowercase
-                        SubGroupCode = requestSubGroup.SubGroupCode.ToLower(), // Convert to lowercase
+                        SubGroupName = requestSubGroup.SubGroupName, // Convert to lowercase
+                        SubGroupCode = requestSubGroup.SubGroupCode, // Convert to lowercase
                         MarketId = existingMarket.Id // Properly set the MarketId
                     };
                     _context.MarketSubGroups.Add(newSubGroup);
