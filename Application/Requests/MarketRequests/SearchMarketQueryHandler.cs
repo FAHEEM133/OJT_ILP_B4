@@ -36,28 +36,31 @@ public class SearchMarketQueryHandler : IRequestHandler<SearchMarketQuery, List<
      */
     public async Task<List<MarketDetailsDto>> Handle(SearchMarketQuery request, CancellationToken cancellationToken)
     {
-        // Fetch markets from the database and project them into MarketDetailsDto
-        var markets = await _context.Markets
+        // Fetch markets and filter by name, code, or longMarketCode using the provided search text
+        var marketsQuery = _context.Markets
+            .Where(m => m.Name.Contains(request.SearchText)
+                     || m.Code.Contains(request.SearchText)
+                     || m.LongMarketCode.Contains(request.SearchText))
             .Select(m => new MarketDetailsDto
             {
-                Id = m.Id,  // Map the market Id
-                Name = m.Name,  // Map the market Name
-                Code = m.Code,  // Map the market Code
-                LongMarketCode = m.LongMarketCode,  // Map the LongMarketCode
-                Region = m.Region.ToString(),  // Convert the Region enum to string
-                SubRegion = m.SubRegion.ToString(),  // Convert the SubRegion enum to string
+                Id = m.Id,
+                Name = m.Name,
+                Code = m.Code,
+                LongMarketCode = m.LongMarketCode,
+                Region = m.Region.ToString(),
+                SubRegion = m.SubRegion.ToString(),
                 MarketSubGroups = m.MarketSubGroups
                     .Select(sg => new MarketSubGroupDto
                     {
-                        SubGroupId = sg.SubGroupId,  // Map SubGroupId
-                        SubGroupName = sg.SubGroupName,  // Map SubGroupName
-                        SubGroupCode = sg.SubGroupCode  // Map SubGroupCode
-                    }).ToList()  // Convert MarketSubGroups to List<MarketSubGroupDto>
-            })
-            // Filter markets based on the provided name in the request
-            .Where(m => m.Name.Contains(request.Name))  // Case-sensitive search
-            .ToListAsync(cancellationToken); // Asynchronously execute the query with cancellation support
+                        SubGroupId = sg.SubGroupId,
+                        SubGroupName = sg.SubGroupName,
+                        SubGroupCode = sg.SubGroupCode
+                    }).ToList()
+            });
 
-        return markets;  // Return the list of MarketDetailsDto
+        var markets = await marketsQuery.ToListAsync(cancellationToken);
+
+        return markets;
     }
+
 }

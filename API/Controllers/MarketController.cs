@@ -228,24 +228,28 @@ namespace API.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<IActionResult> SearchMarket([FromQuery] string name)
+        public async Task<IActionResult> SearchMarket([FromQuery] string searchText)
         {
             /*
              * LLD Steps:
-             * 1. Create a new SearchMarketQuery object and pass the name.
+             * 1. Create a new SearchMarketQuery object and pass the searchText.
              * 2. Send the query to the mediator for processing.
-             * 3. Await the result, which will be a list of markets matching the given name.
+             * 3. Await the result, which will be a list of markets matching the search text.
              * 4. Return the list of market entities in an Ok response, or return NotFound if no matches are found.
              */
-            var markets = await _mediator.Send(new SearchMarketQuery { Name = name });
+            var markets = await _mediator.Send(new SearchMarketQuery
+            {
+                SearchText = searchText
+            });
 
             if (markets == null || markets.Count == 0)
             {
-                return NotFound("No markets found with the given name.");
+                return NotFound("No markets found with the given search criteria.");
             }
 
             return Ok(markets);
         }
+
 
     }
 }

@@ -10,6 +10,6 @@ namespace Application.Requests.MarketRequests
 {
     public class SearchMarketQuery : IRequest<List<MarketDetailsDto>>
     {
-        public string Name { get; set; }
+        public string SearchText { get; set; }
     }
 }
