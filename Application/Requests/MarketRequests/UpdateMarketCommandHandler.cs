@@ -14,15 +14,43 @@ namespace Application.Requests.MarketRequests
     {
         private readonly AppDbContext _context;
 
+        /*
+         * Constructor: UpdateMarketCommandHandler
+         * Initializes the UpdateMarketCommandHandler with the application's database context.
+         * 
+         * Parameters:
+         * - context: AppDbContext - The application's database context used to interact with the database.
+         */
         public UpdateMarketCommandHandler(AppDbContext context)
         {
             _context = context;
         }
 
+        /*
+         * Method: Handle
+         * Handles the UpdateMarketCommand to update an existing market entry in the database.
+         * 
+         * Parameters:
+         * - request: UpdateMarketCommand - The command object containing updated market details.
+         * - cancellationToken: CancellationToken - Token for handling operation cancellation.
+         * 
+         * Returns:
+         * - Task<object>: Asynchronously returns the updated market entity and its subgroups.
+         */
         public async Task<object> Handle(UpdateMarketCommand request, CancellationToken cancellationToken)
         {
+            /*
+             * 1. Check if the specified market exists in the database.
+             * 2. Validate the provided Region and SubRegion.
+             * 3. Validate that the new name and code are unique across other markets.
+             * 4. Update the main fields of the market.
+             * 5. Handle the MarketSubGroups: remove subgroups not in the request, add new subgroups, and update existing ones.
+             * 6. Save the updated market and its subgroups to the database.
+             * 7. Return a response containing the updated market details, including subgroups.
+             */
+
             var existingMarket = await _context.Markets
-                .Include(m => m.MarketSubGroups) // Ensure subgroups are loaded
+                .Include(m => m.MarketSubGroups)
                 .FirstOrDefaultAsync(m => m.Id == request.Id, cancellationToken);
 
             if (existingMarket == null)
@@ -30,13 +58,11 @@ namespace Application.Requests.MarketRequests
                 throw new ValidationException($"Market with ID {request.Id} not found.");
             }
 
-            // Validate Region and SubRegion
             if (!RegionSubRegionValidation.IsValidSubRegionForRegion(request.Region, request.SubRegion))
             {
                 throw new ValidationException($"SubRegion {request.SubRegion} is not valid for the Region {request.Region}");
             }
 
-            // Validate and update Market name and code
             if (request.Name != null && existingMarket.Name != request.Name)
             {
                 var existingMarketByName = await _context.Markets
@@ -59,7 +85,6 @@ namespace Application.Requests.MarketRequests
                 }
             }
 
-            // Update the fields
             existingMarket.Id = request.Id;
             existingMarket.Name = request.Name ?? existingMarket.Name;
             existingMarket.Code = request.Code ?? existingMarket.Code;
@@ -67,10 +92,8 @@ namespace Application.Requests.MarketRequests
             existingMarket.Region = request.Region;
             existingMarket.SubRegion = request.SubRegion;
 
-            // Handle MarketSubGroups: Add, Update, Remove
             var existingSubGroupIds = existingMarket.MarketSubGroups.Select(sg => sg.SubGroupId).ToList();
 
-            // Remove subgroups that are not in the request
             var subGroupsToRemove = existingMarket.MarketSubGroups
                 .Where(sg => !request.MarketSubGroups.Any(reqSg => reqSg.SubGroupId == sg.SubGroupId))
                 .ToList();
@@ -80,7 +103,6 @@ namespace Application.Requests.MarketRequests
                 _context.MarketSubGroups.Remove(subGroupToRemove);
             }
 
-            // Add or update subgroups
             foreach (var requestSubGroup in request.MarketSubGroups)
             {
                 var existingSubGroup = existingMarket.MarketSubGroups
@@ -88,14 +110,12 @@ namespace Application.Requests.MarketRequests
 
                 if (existingSubGroup != null)
                 {
-                    // Update existing subgroup
                     existingSubGroup.SubGroupName = requestSubGroup.SubGroupName;
                     existingSubGroup.SubGroupCode = requestSubGroup.SubGroupCode;
-                    existingSubGroup.MarketId = existingMarket.Id;  // Ensure correct market linkage
+                    existingSubGroup.MarketId = existingMarket.Id;
                 }
                 else
                 {
-                    // Add new subgroup
                     var newSubGroup = new MarketSubGroup
                     {
                         SubGroupName = requestSubGroup.SubGroupName,
@@ -106,11 +126,9 @@ namespace Application.Requests.MarketRequests
                 }
             }
 
-            // Save changes
             _context.Markets.Update(existingMarket);
             await _context.SaveChangesAsync(cancellationToken);
 
-            // Return updated market and subgroups data
             return new
             {
                 id = existingMarket.Id,
@@ -128,5 +146,4 @@ namespace Application.Requests.MarketRequests
             };
         }
     }
-
 }
