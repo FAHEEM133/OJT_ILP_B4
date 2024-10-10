@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Application.Requests.MarketRequests
 {
-    public class CreateMarketCommandHandler : IRequestHandler<CreateMarketCommand, int>
+    public class CreateMarketCommandHandler : IRequestHandler<CreateMarketCommand, object>
     {
         private readonly AppDbContext _context;
 
@@ -36,7 +36,7 @@ namespace Application.Requests.MarketRequests
          * Returns:
          * - Task<int>: Asynchronously returns the ID of the newly created market entity.
          */
-        public async Task<int> Handle(CreateMarketCommand request, CancellationToken cancellationToken)
+        public async Task<object> Handle(CreateMarketCommand request, CancellationToken cancellationToken)
         {
             // Step 1: Validate the SubRegion for the specified Region
             /*
@@ -99,6 +99,20 @@ namespace Application.Requests.MarketRequests
                 SubRegion = request.SubRegion
             };
 
+            // Add any SubGroups if provided
+            if (request.MarketSubGroups != null && request.MarketSubGroups.Count > 0)
+            {
+                foreach (var subGroupDto in request.MarketSubGroups)
+                {
+                    var marketSubGroups = new MarketSubGroup
+                    {
+                        SubGroupName = subGroupDto.SubGroupName,
+                        SubGroupCode = subGroupDto.SubGroupCode,
+                        Market = market // Link SubGroup to the created market
+                    };
+                    market.MarketSubGroups.Add(marketSubGroups);
+                }
+            }
             // Step 5: Add the new Market entity to the database context and save changes
             /*
              * LLD Steps:
@@ -109,8 +123,23 @@ namespace Application.Requests.MarketRequests
             _context.Markets.Add(market);
             await _context.SaveChangesAsync(cancellationToken);
 
-            // Step 6: Return the ID of the newly created market entity
-            return market.Id;
+            var response = new
+            {
+                Name = market.Name,
+                Code = market.Code,
+                LongMarketCode = market.LongMarketCode,
+                Region = market.Region,
+                SubRegion = market.SubRegion,
+                MarketSubGroups = market.MarketSubGroups.Select(sg => new
+                {
+                    SubGroupName = sg.SubGroupName,
+                    SubGroupCode = sg.SubGroupCode,
+                    MarketCode = market.Code
+                }).ToList() // Select only required fields
+            };
+
+            // Return the formatted response object
+            return response;
         }
     }
 }
