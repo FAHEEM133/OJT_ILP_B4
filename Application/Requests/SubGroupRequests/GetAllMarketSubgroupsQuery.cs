@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Application.Requests.SubGroupRequests
 {
-    public class GetAllMarketSubGroupsQuery : IRequest<List<MarketSubGroupDTO>> // Return a list of DTOs
+    public class GetAllMarketSubGroupsQuery : IRequest<List<MarketSubGroupDTO>>
     {
         public string? MarketCode { get; set; }
 
