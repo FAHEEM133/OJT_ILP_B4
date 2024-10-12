@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -104,6 +105,12 @@ namespace Application.Requests.MarketRequests
             {
                 foreach (var subGroupDto in request.MarketSubGroups)
                 {
+                    // Validate the SubGroupName to contain only alphabets and a single space
+                    if (!SubGroupValidation.IsAlphabetic(subGroupDto.SubGroupName))
+                    {
+                        throw new ValidationException($"SubGroup name '{subGroupDto.SubGroupName}' is invalid. It should contain only alphabets and a single space.");
+                    }
+
                     var marketSubGroups = new MarketSubGroup
                     {
                         SubGroupName = subGroupDto.SubGroupName,
@@ -133,8 +140,7 @@ namespace Application.Requests.MarketRequests
                 MarketSubGroups = market.MarketSubGroups.Select(sg => new
                 {
                     SubGroupName = sg.SubGroupName,
-                    SubGroupCode = sg.SubGroupCode,
-                    MarketCode = market.Code
+                    SubGroupCode = sg.SubGroupCode
                 }).ToList() 
             };
 

@@ -139,6 +139,12 @@ namespace Application.Requests.MarketRequests
             
             foreach (var requestSubGroup in request.MarketSubGroups)
             {
+                // Apply filtering for SubGroupName
+                if (!SubGroupValidation.IsAlphabetic(requestSubGroup.SubGroupName))
+                {
+                    throw new ValidationException($"SubGroupName '{requestSubGroup.SubGroupName}' is not valid. It should contain only alphabets and a single space.");
+                }
+
                 var existingSubGroup = existingSubGroups
                     .FirstOrDefault(sg => sg.SubGroupId == requestSubGroup.SubGroupId);
 
@@ -198,8 +204,7 @@ namespace Application.Requests.MarketRequests
                     subGroupId = sg.SubGroupId,
                     subGroupName = sg.SubGroupName,
                     subGroupCode = sg.SubGroupCode,
-                    marketId = sg.MarketId,
-                    marketCode = updatedMarket.Code
+                    marketId = sg.MarketId
                 }).ToList()
             };
         }

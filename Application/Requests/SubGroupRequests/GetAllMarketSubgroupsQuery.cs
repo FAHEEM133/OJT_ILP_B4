@@ -11,11 +11,11 @@ namespace Application.Requests.SubGroupRequests
 {
     public class GetAllMarketSubGroupsQuery : IRequest<List<MarketSubGroupDTO>>
     {
-        public string? MarketCode { get; set; }
+        public int? MarketId { get; set; }
 
-        public GetAllMarketSubGroupsQuery(string? marketCode = null)
+        public GetAllMarketSubGroupsQuery(int? marketId = null)
         {
-            MarketCode = marketCode;
+            MarketId = marketId;
         }
     }
 }

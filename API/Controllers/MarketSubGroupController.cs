@@ -18,13 +18,12 @@ namespace API.Controllers
             _mediator = mediator;
         }
 
-        // GET: api/MarketSubGroup
         [HttpGet]
-        public async Task<ActionResult<List<MarketSubGroupDTO>>> GetAllMarketSubGroups([FromQuery] string? marketCode)
+        public async Task<ActionResult<List<MarketSubGroupDTO>>> GetAllMarketSubGroups([FromQuery] int? marketId)
         {
             try
             {
-                var subGroups = await _mediator.Send(new GetAllMarketSubGroupsQuery(marketCode));
+                var subGroups = await _mediator.Send(new GetAllMarketSubGroupsQuery(marketId));
                 return Ok(subGroups);
             }
             catch (System.Exception ex)
