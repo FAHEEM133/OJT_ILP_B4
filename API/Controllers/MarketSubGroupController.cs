@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Application.Requests.SubGroupRequests;
-using Application.DTOs; // Include the DTO namespace
+using Application.DTOs; 
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Application.Validations
 {
     public static class SubGroupValidation
     {
-        // Method to validate if a string contains only alphabets and a single space
-        public static bool IsAlphabetic(string subGroupName)
+        public static bool IsValidSubGroupCode(string subGroupCode)
         {
-            return System.Text.RegularExpressions.Regex.IsMatch(subGroupName, @"^[a-zA-Z]+( [a-zA-Z]+)*$");
+            return Regex.IsMatch(subGroupCode, @"^[A-Za-z0-9]{1}$");
         }
     }
 }

@@ -22,7 +22,7 @@ namespace Application.Requests.SubGroupRequests
 
         public async Task<List<MarketSubGroupDTO>> Handle(GetAllMarketSubGroupsQuery request, CancellationToken cancellationToken)
         {
-            // Query all subgroups, optionally filter by marketId if provided
+            
             var query = _context.MarketSubGroups.AsQueryable();
 
             if (request.MarketId.HasValue)
@@ -30,7 +30,6 @@ namespace Application.Requests.SubGroupRequests
                 query = query.Where(sg => sg.MarketId == request.MarketId.Value);
             }
 
-            // Fetch data first, then apply filtering and sorting in memory
             var subGroups = await query
                 .Select(sg => new MarketSubGroupDTO
                 {
@@ -41,11 +40,11 @@ namespace Application.Requests.SubGroupRequests
                 })
                 .ToListAsync(cancellationToken);
 
-            // Apply filtering and sorting in memory
+            
             subGroups = subGroups
-                .OrderBy(sg => HasNumericPrefix(sg.SubGroupCode) ? 0 : 1) // Give preference to codes with numbers
-                .ThenBy(sg => GetNumericPrefix(sg.SubGroupCode)) // Sort by numeric prefix
-                .ThenBy(sg => sg.SubGroupCode) // Then by the full code
+                .OrderBy(sg => HasNumericPrefix(sg.SubGroupCode) ? 0 : 1) 
+                .ThenBy(sg => GetNumericPrefix(sg.SubGroupCode)) 
+                .ThenBy(sg => sg.SubGroupCode) 
                 .ToList();
 
             return subGroups;

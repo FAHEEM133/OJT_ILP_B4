@@ -139,10 +139,9 @@ namespace Application.Requests.MarketRequests
             
             foreach (var requestSubGroup in request.MarketSubGroups)
             {
-                // Apply filtering for SubGroupName
-                if (!SubGroupValidation.IsAlphabetic(requestSubGroup.SubGroupName))
+                if (!SubGroupValidation.IsValidSubGroupCode(requestSubGroup.SubGroupCode))
                 {
-                    throw new ValidationException($"SubGroupName '{requestSubGroup.SubGroupName}' is not valid. It should contain only alphabets and a single space.");
+                    throw new ValidationException($"SubGroupCode {requestSubGroup.SubGroupCode} is invalid. It must be a single alphanumeric character.");
                 }
 
                 var existingSubGroup = existingSubGroups

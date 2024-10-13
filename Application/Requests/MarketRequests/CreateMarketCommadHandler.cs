@@ -100,22 +100,23 @@ namespace Application.Requests.MarketRequests
                 SubRegion = request.SubRegion
             };
 
-            // Add any SubGroups if provided
+
+            
             if (request.MarketSubGroups != null && request.MarketSubGroups.Count > 0)
             {
                 foreach (var subGroupDto in request.MarketSubGroups)
                 {
-                    // Validate the SubGroupName to contain only alphabets and a single space
-                    if (!SubGroupValidation.IsAlphabetic(subGroupDto.SubGroupName))
+
+                    if (!SubGroupValidation.IsValidSubGroupCode(subGroupDto.SubGroupCode))
                     {
-                        throw new ValidationException($"SubGroup name '{subGroupDto.SubGroupName}' is invalid. It should contain only alphabets and a single space.");
+                        throw new ValidationException($"SubGroupCode {subGroupDto.SubGroupCode} is invalid. It must be a single alphanumeric character.");
                     }
 
                     var marketSubGroups = new MarketSubGroup
                     {
                         SubGroupName = subGroupDto.SubGroupName,
                         SubGroupCode = subGroupDto.SubGroupCode,
-                        Market = market // Link SubGroup to the created market
+                        Market = market 
                     };
                     market.MarketSubGroups.Add(marketSubGroups);
                 }
