@@ -35,7 +35,7 @@ namespace Application.Requests.MarketRequests
          * - cancellationToken: CancellationToken - Token for handling operation cancellation.
          * 
          * Returns:
-         * - Task<int>: Asynchronously returns the ID of the newly created market entity.
+         * - Task<object>: Asynchronously returns a response object containing the newly created market and its subgroups.
          */
         public async Task<object> Handle(CreateMarketCommand request, CancellationToken cancellationToken)
         {
@@ -100,8 +100,16 @@ namespace Application.Requests.MarketRequests
                 SubRegion = request.SubRegion
             };
 
-
-            
+            // Step 5: Handle market subgroups, if any are provided in the request
+            /*
+             * LLD Steps:
+             * 5.1. Check if the request contains a non-null and non-empty list of MarketSubGroups.
+             * 5.2. If subgroups are present, iterate over the provided MarketSubGroupDTOs.
+             * 5.3. For each subgroup, validate the SubGroupCode using the IsValidSubGroupCode method from SubGroupValidation.
+             * 5.4. If the SubGroupCode is invalid, throw a ValidationException with a descriptive error message.
+             * 5.5. Create a new MarketSubGroup entity and assign the SubGroupName, SubGroupCode, and associate it with the Market entity.
+             * 5.6. Add the MarketSubGroup entity to the Market's MarketSubGroups collection.
+             */
             if (request.MarketSubGroups != null && request.MarketSubGroups.Count > 0)
             {
                 foreach (var subGroupDto in request.MarketSubGroups)
@@ -121,16 +129,23 @@ namespace Application.Requests.MarketRequests
                     market.MarketSubGroups.Add(marketSubGroups);
                 }
             }
-            // Step 5: Add the new Market entity to the database context and save changes
+            // Step 6: Add the new Market entity to the database context and save changes
             /*
              * LLD Steps:
-             * 5.1. Add the newly created market entity to the Markets DbSet using _context.Markets.Add.
-             * 5.2. Call SaveChangesAsync on the _context, passing the cancellationToken to save the changes to the database.
-             * 5.3. Await the result to ensure the market is saved successfully.
+             * 6.1. Add the newly created market entity to the Markets DbSet using _context.Markets.Add.
+             * 6.2. Call SaveChangesAsync on the _context, passing the cancellationToken to save the changes to the database.
+             * 6.3. Await the result to ensure the market is saved successfully.
              */
             _context.Markets.Add(market);
             await _context.SaveChangesAsync(cancellationToken);
 
+            // Step 7: Return a response containing the created market and its subgroups
+            /*
+             * LLD Steps:
+             * 7.1. Construct a response object containing the created Market entity details (Name, Code, LongMarketCode, Region, SubRegion).
+             * 7.2. Include the associated MarketSubGroups by selecting their SubGroupName and SubGroupCode.
+             * 7.3. Return the response object as the result of the handler.
+             */
             var response = new
             {
                 Name = market.Name,

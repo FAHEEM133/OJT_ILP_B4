@@ -15,6 +15,14 @@ namespace Application.Requests.SubGroupRequests
     {
         private readonly AppDbContext _context;
 
+        /*
+         * Constructor: GetAllMarketSubGroupsQueryHandler
+         * Initializes the handler with the application's database context.
+         * 
+         * Parameters:
+         * - context: AppDbContext - The application's database context used to query the database.
+         */
+
         public GetAllMarketSubGroupsQueryHandler(AppDbContext context)
         {
             _context = context;

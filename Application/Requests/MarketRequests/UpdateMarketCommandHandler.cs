@@ -58,22 +58,20 @@ namespace Application.Requests.MarketRequests
 
             // Step 2: Validate the Region and SubRegion
             /*
-             * LLD Steps:
-             * 2.1. Call the IsValidSubRegionForRegion method from the RegionSubRegionValidation class.
-             * 2.2. Pass the requested Region and SubRegion as parameters.
-             * 2.3. If the SubRegion is invalid for the provided Region, throw a ValidationException with a descriptive error message.
+             * 2.1. Call the IsValidSubRegionForRegion method from RegionSubRegionValidation to ensure the SubRegion belongs to the Region.
+             * 2.2. Pass the Region and SubRegion provided in the request to the validation method.
+             * 2.3. If the validation fails, throw a ValidationException indicating the mismatch.
              */
             if (!RegionSubRegionValidation.IsValidSubRegionForRegion(request.Region, request.SubRegion))
             {
                 throw new ValidationException($"SubRegion {request.SubRegion} is not valid for the Region {request.Region}");
             }
 
-            // Step 3: Validate and update Market Name and Code
+            // Step 3: Validate and Update Market Name and Code
             /*
-             * LLD Steps for Name validation:
-             * 3.1. If the requested Name is different from the existing one, check for duplicates.
-             * 3.2. Use _context to search the Markets DbSet for another market with the same Name but different ID.
-             * 3.3. If a duplicate Name is found, throw a ValidationException.
+             * 3.1. If the requested Name differs from the current market Name, check for duplicates:
+             *      - Use _context to search for a market with the same Name but a different ID.
+             * 3.2. If a duplicate Name is found, throw a ValidationException.
              */
             if (request.Name != null && existingMarket.Name != request.Name)
             {
@@ -87,10 +85,9 @@ namespace Application.Requests.MarketRequests
             }
 
             /*
-             * LLD Steps for Code validation:
-             * 3.4. If the requested Code is different from the existing one, check for duplicates.
-             * 3.5. Use _context to search the Markets DbSet for another market with the same Code but different ID.
-             * 3.6. If a duplicate Code is found, throw a ValidationException.
+             * 3.3. Similarly, if the requested Code differs from the current market Code, check for duplicates:
+             *      - Use _context to search for a market with the same Code but a different ID.
+             * 3.4. If a duplicate Code is found, throw a ValidationException.
              */
             if (request.Code != null && existingMarket.Code != request.Code)
             {
@@ -103,11 +100,9 @@ namespace Application.Requests.MarketRequests
                 }
             }
 
-            // Step 4: Update the Market entity's fields
+            // Step 4: Update the Market entity fields
             /*
-             * LLD Steps:
-             * 4.1. Update the Name, Code, LongMarketCode, Region, and SubRegion of the existing Market entity.
-             * 4.2. If the request provides new values, assign them; otherwise, retain the current values.
+             * 4.1. Assign the new values to the Name, Code, LongMarketCode, Region, and SubRegion if provided; otherwise, retain the existing values.
              */
             existingMarket.Id = request.Id;
             existingMarket.Name = request.Name ?? existingMarket.Name;
@@ -115,14 +110,15 @@ namespace Application.Requests.MarketRequests
             existingMarket.LongMarketCode = request.LongMarketCode ?? existingMarket.LongMarketCode;
             existingMarket.Region = request.Region;
             existingMarket.SubRegion = request.SubRegion;
-            
 
-            // Step 5: Handle MarketSubGroups - Add, Update, Remove
+
+            // Step 5: Manage MarketSubGroups - Add, Update, Remove
             /*
-             * LLD Steps:
-             * 5.1. Fetch the current list of MarketSubGroups associated with the existing market.
-             * 5.2. Identify and remove subgroups that are not present in the request.
-             * 5.3. Iterate over the requested MarketSubGroups to either update existing subgroups or add new ones.
+             * 5.1. Fetch the existing MarketSubGroups associated with the current market.
+             * 5.2. Identify subgroups that need to be removed by comparing them against the provided subgroups in the request.
+             * 5.3. For each requested subgroup:
+             *      - Check for its validity using the SubGroupValidation class.
+             *      - Either update the existing subgroup or add a new one if it does not exist in the database.
              */
             var existingSubGroups = existingMarket.MarketSubGroups.ToList();
 
@@ -167,28 +163,25 @@ namespace Application.Requests.MarketRequests
                 }
             }
 
-            // Step 6: Save changes to the database
+            // Step 6: Persist changes to the database
             /*
-             * LLD Steps:
-             * 6.1. Call SaveChangesAsync on the _context, passing the cancellationToken to save the changes.
-             * 6.2. Await the result to ensure all updates are persisted to the database.
+             * 6.1. Call _context.SaveChangesAsync() to save all changes made to the database.
+             * 6.2. Pass the cancellationToken to ensure the operation can be cancelled.
              */
             await _context.SaveChangesAsync(cancellationToken);
 
-            // Step 7: Reload the updated Market entity with subgroups
+            // Step 7: Reload the updated Market entity with its subgroups
             /*
-             * LLD Steps:
-             * 7.1. Fetch the updated market, including its subgroups, from the database.
-             * 7.2. Return the updated market details in the response.
+             * 7.1. Fetch the updated market entity from the database.
+             * 7.2. Include its associated subgroups to return a complete response.
              */
             var updatedMarket = await _context.Markets
                 .Include(m => m.MarketSubGroups)
                 .FirstOrDefaultAsync(m => m.Id == request.Id, cancellationToken);
 
-            // Step 8: Return the updated market and subgroups data
+            // Step 8: Return the updated market data
             /*
-             * LLD Steps:
-             * 8.1. Return a response object containing the updated Market entity details and associated subgroups.
+             * 8.1. Return an object containing the updated market details and its associated subgroups.
              */
             return new
             {
