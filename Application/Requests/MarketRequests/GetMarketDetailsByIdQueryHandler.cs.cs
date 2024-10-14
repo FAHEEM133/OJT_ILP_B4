@@ -64,36 +64,35 @@ namespace Application.Requests.MarketRequests
          */
         public async Task<MarketDetailsDto> Handle(GetMarketDetailsByIdQuery request, CancellationToken cancellationToken)
         {
-            // Fetch the market along with related subgroups based on the provided market ID
+            
             var market = await _context.Markets
-                .Include(m => m.MarketSubGroups)   // Include the subgroups when fetching market data
-                .FirstOrDefaultAsync(m => m.Id == request.MarketId, cancellationToken);  // Fetch market by ID
+                .Include(m => m.MarketSubGroups)   
+                .FirstOrDefaultAsync(m => m.Id == request.MarketId, cancellationToken);  
 
-            // If market is not found, return null
+            
             if (market == null) return null;
 
-            // Convert the Region and SubRegion enums into their corresponding string representations
             var regionString = Enum.GetName(typeof(Region), market.Region);
             var subRegionString = Enum.GetName(typeof(SubRegion), market.SubRegion);
 
-            // Map the Market entity to a DTO (Data Transfer Object)
+            
             var marketDetails = new MarketDetailsDto
             {
-                Id = market.Id,               // Assign market ID
-                Name = market.Name,           // Assign market name
-                Code = market.Code,           // Assign market code
-                LongMarketCode = market.LongMarketCode, // Assign long market code
-                Region = regionString,              // Assign string value of region enum
-                SubRegion = subRegionString,        // Assign string value of subregion enum
+                Id = market.Id,               
+                Name = market.Name,           
+                Code = market.Code,           
+                LongMarketCode = market.LongMarketCode, 
+                Region = regionString,              
+                SubRegion = subRegionString,        
                 MarketSubGroups = market.MarketSubGroups.Select(subGroup => new MarketSubGroupDto
                 {
-                    SubGroupId = subGroup.SubGroupId,    // Assign subgroup ID
-                    SubGroupName = subGroup.SubGroupName, // Assign subgroup name
-                    SubGroupCode = subGroup.SubGroupCode  // Assign subgroup code
-                }).ToList()  // Convert subgroups to list of DTOs
+                    SubGroupId = subGroup.SubGroupId,    
+                    SubGroupName = subGroup.SubGroupName, 
+                    SubGroupCode = subGroup.SubGroupCode  
+                }).ToList()  
             };
 
-            // Return the market details DTO
+            
             return marketDetails;
         }
     }

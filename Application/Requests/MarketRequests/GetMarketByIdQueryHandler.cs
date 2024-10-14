@@ -19,15 +19,15 @@ namespace Application.Handlers.MarketHandlers
 
         public async Task<Market> Handle(GetMarketByIdQuery request, CancellationToken cancellationToken)
         {
-            // Fetch the market details by MarketId
+            
             var market = await _context.Markets
-                .Include(m => m.MarketSubGroups) // Optionally include related data if needed
+                .Include(m => m.MarketSubGroups)
                 .FirstOrDefaultAsync(m => m.Id == request.MarketId, cancellationToken);
 
-            // Return the market entity or handle the case where it's not found
+            
             if (market == null)
             {
-                return null; // Or throw an exception if needed, e.g., throw new NotFoundException("Market not found");
+                return null;
             }
 
             return market;

@@ -12,8 +12,8 @@ namespace Application.Requests.MarketRequests
         public string Code { get; set; }
         public string LongMarketCode { get; set; }
 
-        public Region Region { get; set; }  // Add Region
-        public SubRegion SubRegion { get; set; }  // Add SubRegion
+        public Region Region { get; set; }  
+        public SubRegion SubRegion { get; set; }  
         public List<MarketSubGroupDTO> MarketSubGroups { get; set; } = new List<DTOs.MarketSubGroupDTO>();
     }
 }
