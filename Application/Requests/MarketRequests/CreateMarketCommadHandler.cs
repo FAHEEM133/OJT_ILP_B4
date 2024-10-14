@@ -94,8 +94,8 @@ namespace Application.Requests.MarketRequests
             var market = new Market
             {
                 Name = request.Name,
-                Code = request.Code,
-                LongMarketCode = request.LongMarketCode,
+                Code = request.Code.ToUpper(),
+                LongMarketCode = request.LongMarketCode.ToUpper(),
                 Region = request.Region,
                 SubRegion = request.SubRegion
             };
