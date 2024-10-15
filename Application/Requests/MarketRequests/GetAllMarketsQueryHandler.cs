@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace Application.Requests.MarketRequests
 {
-    public class GetAllMarketsQueryHandler : IRequestHandler<GetAllMarketsQuery, List<Market>>
+    public class GetAllMarketsQueryHandler : IRequestHandler<GetAllMarketsQuery, (List<Market> Markets, int TotalCount)>
     {
         private readonly AppDbContext _context;
 
         /*
          * Constructor: GetAllMarketsQueryHandler
-         * Initializes the handler with the database context.
+         * Initializes the GetAllMarketsQueryHandler with the application's database context.
          * 
          * Parameters:
          * - context: AppDbContext - The application's database context used to interact with the database.
@@ -26,25 +26,33 @@ namespace Application.Requests.MarketRequests
 
         /*
          * Method: Handle
-         * Retrieves all market entries from the database.
+         * Handles the GetAllMarketsQuery to fetch a paginated list of markets and the total count of available markets.
          * 
          * Parameters:
-         * - request: GetAllMarketsQuery - The query object used for fetching all markets.
+         * - request: GetAllMarketsQuery - The query object containing pagination details.
          * - cancellationToken: CancellationToken - Token for handling operation cancellation.
          * 
          * Returns:
-         * - Task<List<Market>>: Asynchronously returns a list of all Market entities from the database.
+         * - Task<(List<Market> Markets, int TotalCount)>: Asynchronously returns a tuple containing a list of markets and the total market count.
          */
-        public async Task<List<Market>> Handle(GetAllMarketsQuery request, CancellationToken cancellationToken)
+        public async Task<(List<Market> Markets, int TotalCount)> Handle(GetAllMarketsQuery request, CancellationToken cancellationToken)
         {
             /*
-             * LLD Steps:
-             * 1. Access the Markets DbSet from the AppDbContext.
-             * 2. Fetch all market entries from the database asynchronously using the `ToListAsync` method.
-             * 3. Pass the cancellationToken to the `ToListAsync` method to allow for operation cancellation if needed.
-             * 4. Return the list of all Market entities retrieved from the database.
+             * 1. Retrieve the total count of available markets in the database.
+             * 2. Fetch the list of markets based on the page number and page size specified in the request.
+             * 3. Include the associated MarketSubGroups for each market.
+             * 4. Return the list of markets along with the total count.
              */
-            return await _context.Markets.Include(m => m.MarketSubGroups).ToListAsync(cancellationToken);
+
+            var totalCount = await _context.Markets.CountAsync(cancellationToken);
+
+            var markets = await _context.Markets
+                                        .Include(m => m.MarketSubGroups)
+                                        .Skip((request.PageNumber - 1) * request.PageSize)
+                                        .Take(request.PageSize)
+                                        .ToListAsync(cancellationToken);
+
+            return (markets, totalCount);
         }
     }
 }
