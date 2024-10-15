@@ -36,7 +36,7 @@ public class SearchMarketQueryHandler : IRequestHandler<SearchMarketQuery, List<
      */
     public async Task<List<MarketDetailsDto>> Handle(SearchMarketQuery request, CancellationToken cancellationToken)
     {
-        // Fetch markets and filter by name, code, or longMarketCode using the provided search text
+        
         var marketsQuery = _context.Markets
             .Where(m => m.Name.Contains(request.SearchText)
                      || m.Code.Contains(request.SearchText)

@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -34,10 +35,11 @@ namespace Application.Requests.MarketRequests
          * - cancellationToken: CancellationToken - Token for handling operation cancellation.
          * 
          * Returns:
-         * - Task<object>: Asynchronously returns the ID of the newly created market entity.
+         * - Task<object>: Asynchronously returns a response object containing the newly created market and its subgroups.
          */
         public async Task<object> Handle(CreateMarketCommand request, CancellationToken cancellationToken)
         {
+            // Step 1: Validate the SubRegion for the specified Region
             /*
              * 1. Check if the SubRegion is valid for the given Region.
              * 2. Check if a market with the same name already exists in the database.
@@ -74,17 +76,23 @@ namespace Application.Requests.MarketRequests
             var market = new Market
             {
                 Name = request.Name,
-                Code = request.Code,
-                LongMarketCode = request.LongMarketCode,
+                Code = request.Code.ToUpper(),
+                LongMarketCode = request.LongMarketCode.ToUpper(),
                 Region = request.Region,
                 SubRegion = request.SubRegion
             };
 
-           
+            // Add any SubGroups if provided
             if (request.MarketSubGroups != null && request.MarketSubGroups.Count > 0)
             {
                 foreach (var subGroupDto in request.MarketSubGroups)
                 {
+
+                    if (!SubGroupValidation.IsValidSubGroupCode(subGroupDto.SubGroupCode))
+                    {
+                        throw new ValidationException($"SubGroupCode {subGroupDto.SubGroupCode} is invalid. It must be a single alphanumeric character.");
+                    }
+
                     var marketSubGroups = new MarketSubGroup
                     {
                         SubGroupName = subGroupDto.SubGroupName,
@@ -108,11 +116,11 @@ namespace Application.Requests.MarketRequests
                 MarketSubGroups = market.MarketSubGroups.Select(sg => new
                 {
                     SubGroupName = sg.SubGroupName,
-                    SubGroupCode = sg.SubGroupCode,
-                    MarketCode = market.Code
-                }).ToList()
+                    SubGroupCode = sg.SubGroupCode
+                }).ToList() 
             };
 
+            // Return the formatted response object
             return response;
         }
     }

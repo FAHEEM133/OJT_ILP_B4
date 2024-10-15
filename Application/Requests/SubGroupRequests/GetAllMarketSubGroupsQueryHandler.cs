@@ -15,6 +15,14 @@ namespace Application.Requests.SubGroupRequests
     {
         private readonly AppDbContext _context;
 
+        /*
+         * Constructor: GetAllMarketSubGroupsQueryHandler
+         * Initializes the handler with the application's database context.
+         * 
+         * Parameters:
+         * - context: AppDbContext - The application's database context used to query the database.
+         */
+
         public GetAllMarketSubGroupsQueryHandler(AppDbContext context)
         {
             _context = context;
@@ -22,51 +30,43 @@ namespace Application.Requests.SubGroupRequests
 
         public async Task<List<MarketSubGroupDTO>> Handle(GetAllMarketSubGroupsQuery request, CancellationToken cancellationToken)
         {
-            var query = _context.MarketSubGroups
-                .Include(subgroup => subgroup.Market)
-                .AsQueryable();
+            
+            var query = _context.MarketSubGroups.AsQueryable();
 
-            if (!string.IsNullOrEmpty(request.MarketCode))
+            if (request.MarketId.HasValue)
             {
-                query = query.Where(subgroup => subgroup.Market.Code == request.MarketCode);
+                query = query.Where(sg => sg.MarketId == request.MarketId.Value);
             }
 
-            var marketSubGroups = await query.ToListAsync(cancellationToken);
-
-            var filteredMarketSubGroups = marketSubGroups
-                .Where(subgroup => IsAlphabetic(subgroup.SubGroupName))
-                .OrderBy(subgroup => GetNumericPrefix(subgroup.SubGroupCode) == null)
-                .ThenBy(subgroup => GetNumericPrefix(subgroup.SubGroupCode))
-                .ThenBy(subgroup => subgroup.SubGroupCode)
-                .Select(subgroup => new MarketSubGroupDTO
+            var subGroups = await query
+                .Select(sg => new MarketSubGroupDTO
                 {
-                    SubGroupId = subgroup.SubGroupId,
-                    SubGroupName = subgroup.SubGroupName,
-                    SubGroupCode = subgroup.SubGroupCode,
-                    MarketId = subgroup.MarketId,
-                    MarketCode = subgroup.Market.Code
+                    SubGroupId = sg.SubGroupId,
+                    SubGroupCode = sg.SubGroupCode,
+                    SubGroupName = sg.SubGroupName,
+                    MarketId = sg.MarketId
                 })
+                .ToListAsync(cancellationToken);
+
+            
+            subGroups = subGroups
+                .OrderBy(sg => HasNumericPrefix(sg.SubGroupCode) ? 0 : 1) 
+                .ThenBy(sg => GetNumericPrefix(sg.SubGroupCode)) 
+                .ThenBy(sg => sg.SubGroupCode) 
                 .ToList();
 
-            return filteredMarketSubGroups;
-        }
-
-        private bool IsAlphabetic(string input)
-        {
-            var regex = new Regex("^[a-zA-Z]+$");
-            return regex.IsMatch(input);
+            return subGroups;
         }
 
         private int? GetNumericPrefix(string input)
         {
             var numericPart = new string(input.TakeWhile(char.IsDigit).ToArray());
+            return int.TryParse(numericPart, out int result) ? result : (int?)null;
+        }
 
-            if (int.TryParse(numericPart, out int result))
-            {
-                return result;
-            }
-
-            return null;
+        private bool HasNumericPrefix(string input)
+        {
+            return char.IsDigit(input.FirstOrDefault());
         }
     }
 }
