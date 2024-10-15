@@ -10,50 +10,44 @@ using System.Threading.Tasks;
 
 namespace Application.Requests.MarketRequests
 {
+    /// <summary>
+    /// Handles the creation of a new market entry, including validation of market details and associated subgroups.
+    /// </summary>
     public class CreateMarketCommandHandler : IRequestHandler<CreateMarketCommand, object>
     {
         private readonly AppDbContext _context;
 
-        /*
-         * Constructor: CreateMarketCommandHandler
-         * Initializes the CreateMarketCommandHandler with the application's database context.
-         * 
-         * Parameters:
-         * - context: AppDbContext - The application's database context used to interact with the database.
-         */
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CreateMarketCommandHandler"/> class with the provided database context.
+        /// </summary>
+        /// <param name="context">The application's database context used to interact with the Markets table.</param>
         public CreateMarketCommandHandler(AppDbContext context)
         {
             _context = context;
         }
 
-        /*
-         * Method: Handle
-         * Handles the CreateMarketCommand to create a new market entry in the database.
-         * 
-         * Parameters:
-         * - request: CreateMarketCommand - The command object containing details for creating a new market.
-         * - cancellationToken: CancellationToken - Token for handling operation cancellation.
-         * 
-         * Returns:
-         * - Task<object>: Asynchronously returns a response object containing the newly created market and its subgroups.
-         */
+        /// <summary>
+        /// Handles the creation of a new market, ensuring validation of market and subgroup details.
+        /// </summary>
+        /// <param name="request">The <see cref="CreateMarketCommand"/> containing the market's details and optional subgroups.</param>
+        /// <param name="cancellationToken">Token to cancel the operation if needed.</param>
+        /// <returns>A response object containing the newly created market and its subgroups.</returns>
         public async Task<object> Handle(CreateMarketCommand request, CancellationToken cancellationToken)
         {
-            // Step 1: Validate the SubRegion for the specified Region
-            /*
-             * 1. Check if the SubRegion is valid for the given Region.
-             * 2. Check if a market with the same name already exists in the database.
-             * 3. Check if a market with the same code already exists in the database.
-             * 4. Create a new Market entity with the provided details.
-             * 5. Add any provided SubGroups to the Market entity.
-             * 6. Add the new Market entity to the database context and save the changes.
-             * 7. Return a response with the details of the newly created market.
-             */
+            // LLD steps : 
+            // 1. Validate the SubRegion for the specified Region
+            // 2. Check if a market with the same name already exists
+            // 3. Check if a market with the same code already exists
+            // 4. Create a new Market entity
+            // 5. Add subgroups to the Market, if they are provided and valid.
+            // 6. Add the new Market to the database and save changes
+            // 7. Return a response containing the created Market and its subgroups
 
             if (!RegionSubRegionValidation.IsValidSubRegionForRegion(request.Region, request.SubRegion))
             {
                 throw new ValidationException($"SubRegion {request.SubRegion} is not valid for the Region {request.Region}");
             }
+
 
             var existingMarketByName = await _context.Markets
                 .FirstOrDefaultAsync(m => m.Name == request.Name, cancellationToken);
@@ -73,6 +67,7 @@ namespace Application.Requests.MarketRequests
                 throw validationError;
             }
 
+
             var market = new Market
             {
                 Name = request.Name,
@@ -82,7 +77,7 @@ namespace Application.Requests.MarketRequests
                 SubRegion = request.SubRegion
             };
 
-            // Add any SubGroups if provided
+
             if (request.MarketSubGroups != null && request.MarketSubGroups.Count > 0)
             {
                 foreach (var subGroupDto in request.MarketSubGroups)
@@ -106,6 +101,7 @@ namespace Application.Requests.MarketRequests
             _context.Markets.Add(market);
             await _context.SaveChangesAsync(cancellationToken);
 
+
             var response = new
             {
                 Name = market.Name,
@@ -120,7 +116,7 @@ namespace Application.Requests.MarketRequests
                 }).ToList() 
             };
 
-            // Return the formatted response object
+            
             return response;
         }
     }
