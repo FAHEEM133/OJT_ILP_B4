@@ -148,22 +148,7 @@ namespace Application.Requests.MarketRequests
                 .FirstOrDefaultAsync(m => m.Id == request.Id, cancellationToken);
 
 
-            return new
-            {
-                id = updatedMarket.Id,
-                name = updatedMarket.Name,
-                code = updatedMarket.Code,
-                longMarketCode = updatedMarket.LongMarketCode,
-                region = (int)updatedMarket.Region,
-                subRegion = (int)updatedMarket.SubRegion,
-                marketSubGroups = updatedMarket.MarketSubGroups.Select(sg => new
-                {
-                    subGroupId = sg.SubGroupId,
-                    subGroupName = sg.SubGroupName,
-                    subGroupCode = sg.SubGroupCode,
-                    marketId = sg.MarketId
-                }).ToList()
-            };
+            return updatedMarket.Id;
         }
     }
 }
