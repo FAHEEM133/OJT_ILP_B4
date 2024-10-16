@@ -11,62 +11,79 @@ using System.Threading.Tasks;
 
 namespace Application.Requests.SubGroupRequests
 {
+    /// <summary>
+    /// Handles the retrieval of all market subgroups, with optional filtering by MarketId.
+    /// This class queries the database to get the required data, sorts it, and returns the subgroups
+    /// in a structured format (MarketSubGroupDTO).
+    /// </summary>
     public class GetAllMarketSubGroupsQueryHandler : IRequestHandler<GetAllMarketSubGroupsQuery, List<MarketSubGroupDTO>>
     {
         private readonly AppDbContext _context;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GetAllMarketSubGroupsQueryHandler"/> class.
+        /// </summary>
+        /// <param name="context">The application's database context used to query the MarketSubGroups table.</param>
         public GetAllMarketSubGroupsQueryHandler(AppDbContext context)
         {
             _context = context;
         }
 
+        /// <summary>
+        /// Handles the query to retrieve all market subgroups, optionally filtering by MarketId.
+        /// </summary>
+        /// <param name="request">The request containing the MarketId (optional) to filter the subgroups.</param>
+        /// <param name="cancellationToken">Token to cancel the operation if needed.</param>
+        /// <returns>A list of <see cref="MarketSubGroupDTO"/> representing the subgroups, sorted by numeric prefix and then alphabetically.</returns>
         public async Task<List<MarketSubGroupDTO>> Handle(GetAllMarketSubGroupsQuery request, CancellationToken cancellationToken)
         {
-            var query = _context.MarketSubGroups
-                .Include(subgroup => subgroup.Market)
-                .AsQueryable();
+            
+            var query = _context.MarketSubGroups.AsQueryable();
 
-            if (!string.IsNullOrEmpty(request.MarketCode))
+            if (request.MarketId.HasValue)
             {
-                query = query.Where(subgroup => subgroup.Market.Code == request.MarketCode);
+                query = query.Where(sg => sg.MarketId == request.MarketId.Value);
             }
 
-            var marketSubGroups = await query.ToListAsync(cancellationToken);
-
-            var filteredMarketSubGroups = marketSubGroups
-                .Where(subgroup => IsAlphabetic(subgroup.SubGroupName))
-                .OrderBy(subgroup => GetNumericPrefix(subgroup.SubGroupCode) == null)
-                .ThenBy(subgroup => GetNumericPrefix(subgroup.SubGroupCode))
-                .ThenBy(subgroup => subgroup.SubGroupCode)
-                .Select(subgroup => new MarketSubGroupDTO
+            var subGroups = await query
+                .Select(sg => new MarketSubGroupDTO
                 {
-                    SubGroupId = subgroup.SubGroupId,
-                    SubGroupName = subgroup.SubGroupName,
-                    SubGroupCode = subgroup.SubGroupCode,
-                    MarketId = subgroup.MarketId,
-                    MarketCode = subgroup.Market.Code
+                    SubGroupId = sg.SubGroupId,
+                    SubGroupCode = sg.SubGroupCode,
+                    SubGroupName = sg.SubGroupName,
+                    MarketId = sg.MarketId
                 })
+                .ToListAsync(cancellationToken);
+
+            
+            subGroups = subGroups
+                .OrderBy(sg => HasNumericPrefix(sg.SubGroupCode) ? 0 : 1) 
+                .ThenBy(sg => GetNumericPrefix(sg.SubGroupCode)) 
+                .ThenBy(sg => sg.SubGroupCode) 
                 .ToList();
 
-            return filteredMarketSubGroups;
+            return subGroups;
         }
 
-        private bool IsAlphabetic(string input)
-        {
-            var regex = new Regex("^[a-zA-Z]+$");
-            return regex.IsMatch(input);
-        }
-
+        /// <summary>
+        /// Extracts the numeric prefix from a given string (e.g., "12A" returns 12).
+        /// </summary>
+        /// <param name="input">The input string to extract the numeric part from.</param>
+        /// <returns>The numeric prefix as an integer, or null if no numeric prefix exists.</returns>
         private int? GetNumericPrefix(string input)
         {
             var numericPart = new string(input.TakeWhile(char.IsDigit).ToArray());
+            return int.TryParse(numericPart, out int result) ? result : (int?)null;
+        }
 
-            if (int.TryParse(numericPart, out int result))
-            {
-                return result;
-            }
-
-            return null;
+        /// <summary>
+        /// Determines if a string starts with a numeric prefix.
+        /// </summary>
+        /// <param name="input">The input string to check for a numeric prefix.</param>
+        /// <returns>True if the string starts with a number, otherwise false.</returns>
+        private bool HasNumericPrefix(string input)
+        {
+            return char.IsDigit(input.FirstOrDefault());
         }
     }
 }
