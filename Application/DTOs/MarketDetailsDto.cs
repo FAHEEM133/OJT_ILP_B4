@@ -16,10 +16,3 @@ public class MarketDetailsDto
     public string SubRegion { get; set; }
     public List<MarketSubGroupDTO> MarketSubGroups { get; set; }
 }
-
-/*    public class MarketSubGroupDto
-{
-    public int SubGroupId { get; set; }
-    public string SubGroupName { get; set; }
-    public string SubGroupCode { get; set; }
-}*/
