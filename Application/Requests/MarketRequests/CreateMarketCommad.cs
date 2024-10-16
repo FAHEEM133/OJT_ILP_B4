@@ -1,5 +1,5 @@
 using Application.DTOs;
-using Domain.Enums; // Import the enums
+using Domain.Enums;
 using Domain.Enums.Domain.Enums;
 using MediatR;
 

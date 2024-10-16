@@ -58,7 +58,7 @@ public class GetMarketDetailsByIdQueryHandler : IRequestHandler<GetMarketDetails
             LongMarketCode = market.LongMarketCode, 
             Region = regionString,              
             SubRegion = subRegionString,        
-            MarketSubGroups = market.MarketSubGroups.Select(subGroup => new MarketSubGroupDto
+            MarketSubGroups = market.MarketSubGroups.Select(subGroup => new MarketSubGroupDTO
             {
                 SubGroupId = subGroup.SubGroupId,    
                 SubGroupName = subGroup.SubGroupName, 

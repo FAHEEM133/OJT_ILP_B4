@@ -47,7 +47,7 @@ public class SearchMarketQueryHandler : IRequestHandler<SearchMarketQuery, List<
                 Region = m.Region.ToString(),
                 SubRegion = m.SubRegion.ToString(),
                 MarketSubGroups = m.MarketSubGroups
-                    .Select(sg => new MarketSubGroupDto
+                    .Select(sg => new MarketSubGroupDTO
                     {
                         SubGroupId = sg.SubGroupId,
                         SubGroupName = sg.SubGroupName,
