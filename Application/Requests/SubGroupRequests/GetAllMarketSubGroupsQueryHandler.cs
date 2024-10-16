@@ -11,37 +11,30 @@ using System.Threading.Tasks;
 
 namespace Application.Requests.SubGroupRequests
 {
+    /// <summary>
+    /// Handles the retrieval of all market subgroups, with optional filtering by MarketId.
+    /// This class queries the database to get the required data, sorts it, and returns the subgroups
+    /// in a structured format (MarketSubGroupDTO).
+    /// </summary>
     public class GetAllMarketSubGroupsQueryHandler : IRequestHandler<GetAllMarketSubGroupsQuery, List<MarketSubGroupDTO>>
     {
         private readonly AppDbContext _context;
 
-        /*
-         * Constructor: GetAllMarketSubGroupsQueryHandler
-         * Initializes the handler with the application's database context.
-         * 
-         * Parameters:
-         * - context: AppDbContext - The application's database context used to query the database.
-         */
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GetAllMarketSubGroupsQueryHandler"/> class.
+        /// </summary>
+        /// <param name="context">The application's database context used to query the MarketSubGroups table.</param>
         public GetAllMarketSubGroupsQueryHandler(AppDbContext context)
         {
             _context = context;
         }
 
-        /*
-         * Method: Handle
-         * Retrieves and returns a list of MarketSubGroupDTOs based on the provided query filters.
-         *
-         * Parameters:
-         * - request: GetAllMarketSubGroupsQuery - Contains optional MarketId for filtering subgroups.
-         * - cancellationToken: CancellationToken - Supports cancellation of the operation.
-         *
-         * Key Points:
-         * 1. Fetches MarketSubGroups and filters by MarketId if provided.
-         * 2. Projects the data into MarketSubGroupDTOs (only includes SubGroupId, SubGroupCode, SubGroupName, and MarketId).
-         * 3. Sorts the subgroups first by numeric prefixes, then alphabetically.
-         * 4. Returns the sorted list of subgroups.
-         */
+        /// <summary>
+        /// Handles the query to retrieve all market subgroups, optionally filtering by MarketId.
+        /// </summary>
+        /// <param name="request">The request containing the MarketId (optional) to filter the subgroups.</param>
+        /// <param name="cancellationToken">Token to cancel the operation if needed.</param>
+        /// <returns>A list of <see cref="MarketSubGroupDTO"/> representing the subgroups, sorted by numeric prefix and then alphabetically.</returns>
         public async Task<List<MarketSubGroupDTO>> Handle(GetAllMarketSubGroupsQuery request, CancellationToken cancellationToken)
         {
 
@@ -72,32 +65,22 @@ namespace Application.Requests.SubGroupRequests
             return subGroups;
         }
 
-        /*
-         * Helper Method: GetNumericPrefix
-         * Extracts and returns the numeric prefix from a string (e.g., "12A" -> 12).
-         *
-         * Parameters:
-         * - input: string - The input code to extract the numeric part.
-         *
-         * Returns:
-         * - int? : The numeric prefix if found, or null if no digits are at the start.
-         */
+        /// <summary>
+        /// Extracts the numeric prefix from a given string (e.g., "12A" returns 12).
+        /// </summary>
+        /// <param name="input">The input string to extract the numeric part from.</param>
+        /// <returns>The numeric prefix as an integer, or null if no numeric prefix exists.</returns>
         private int? GetNumericPrefix(string input)
         {
             var numericPart = new string(input.TakeWhile(char.IsDigit).ToArray());
             return int.TryParse(numericPart, out int result) ? result : (int?)null;
         }
 
-        /*
-         * Helper Method: HasNumericPrefix
-         * Checks if a string starts with a numeric prefix.
-         *
-         * Parameters:
-         * - input: string - The input code to check.
-         *
-         * Returns:
-         * - bool: True if the code starts with a number, otherwise false.
-         */
+        /// <summary>
+        /// Determines if a string starts with a numeric prefix.
+        /// </summary>
+        /// <param name="input">The input string to check for a numeric prefix.</param>
+        /// <returns>True if the string starts with a number, otherwise false.</returns>
         private bool HasNumericPrefix(string input)
         {
             return char.IsDigit(input.FirstOrDefault());
