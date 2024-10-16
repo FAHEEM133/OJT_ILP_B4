@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Model
 {
-    public class MarketSubGroup
+    public class MarketSubGroup:AuditableEntity
     {
         public int SubGroupId { get; set; }
 
@@ -25,8 +25,7 @@ namespace Domain.Model
         [JsonIgnore]
         public Market Market { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+      
     }
 
 }
