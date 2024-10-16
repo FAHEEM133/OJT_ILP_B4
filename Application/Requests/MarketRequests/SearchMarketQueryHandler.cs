@@ -3,14 +3,17 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.DTOs;
-using Application.Requests.MarketRequests;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Infrastructure.Data;
 using Domain.Enums.Domain.Enums;
 
+
+namespace Application.Requests.MarketRequests;
+
 public class SearchMarketQueryHandler : IRequestHandler<SearchMarketQuery, List<MarketDetailsDto>>
 {
+
     private readonly AppDbContext _context;
 
     public SearchMarketQueryHandler(AppDbContext context)
@@ -18,22 +21,7 @@ public class SearchMarketQueryHandler : IRequestHandler<SearchMarketQuery, List<
         _context = context;
     }
 
-    /**
-     * @method Handle
-     * 
-     * Handles the incoming request to search for markets based on a name query. It retrieves 
-     * a list of markets from the database, along with their related subgroups. The region and 
-     * subregion enum values are converted to string equivalents and returned as a list of DTOs.
-     * 
-     * @param {SearchMarketQuery} request
-     * The request object containing the `Name` to search for.
-     * 
-     * @param {CancellationToken} cancellationToken
-     * Used to cancel the asynchronous operation if needed.
-     * 
-     * @returns {Task<List<MarketDetailsDto>>}
-     * Returns a list of `MarketDetailsDto` populated with market and subgroup information.
-     */
+
     public async Task<List<MarketDetailsDto>> Handle(SearchMarketQuery request, CancellationToken cancellationToken)
     {
         
