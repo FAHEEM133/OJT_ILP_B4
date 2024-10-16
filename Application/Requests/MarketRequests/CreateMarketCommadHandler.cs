@@ -101,22 +101,7 @@ public class CreateMarketCommandHandler : IRequestHandler<CreateMarketCommand, o
         _context.Markets.Add(market);
         await _context.SaveChangesAsync(cancellationToken);
 
-
-        var response = new
-        {
-            Name = market.Name,
-            Code = market.Code,
-            LongMarketCode = market.LongMarketCode,
-            Region = market.Region,
-            SubRegion = market.SubRegion,
-            MarketSubGroups = market.MarketSubGroups.Select(sg => new
-            {
-                SubGroupName = sg.SubGroupName,
-                SubGroupCode = sg.SubGroupCode
-            }).ToList() 
-        };
-
         
-        return response;
+        return market.Id;
     }
 }
