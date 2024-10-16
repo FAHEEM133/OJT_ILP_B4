@@ -3,8 +3,7 @@ using Domain.Model;
 using Infrastructure.Data;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System.Threading;
-using System.Threading.Tasks;
+
 
 namespace Application.Handlers.MarketHandlers;
 

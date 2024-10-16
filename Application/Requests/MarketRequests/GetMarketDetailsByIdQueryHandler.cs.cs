@@ -4,10 +4,7 @@ using Domain.Enums.Domain.Enums;
 using Infrastructure.Data;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+
 
 namespace Application.Requests.MarketRequests;
 
