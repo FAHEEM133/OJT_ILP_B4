@@ -1,10 +1,9 @@
 ﻿using Application.DTOs;
-using Domain.Enums;
+using Domain.Enums; // Import the enums
 using Domain.Enums.Domain.Enums;
 using MediatR;
 
-
-namespace Application.Requests.Market;
+namespace Application.Requests.MarketRequests;
 
 /// <summary>
 /// Command to create a new market with the provided details.

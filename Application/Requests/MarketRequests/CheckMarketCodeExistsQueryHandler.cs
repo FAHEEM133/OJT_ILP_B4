@@ -1,9 +1,12 @@
 ﻿using Infrastructure.Data;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Application.Requests.MarketRequests;
+
 
 /// <summary>
 /// Handles the query to check if a market code already exists in the database.

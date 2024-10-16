@@ -5,6 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Requests.MarketRequests;
 
+/// <summary>
+/// Handles the query to check if a market name already exists in the database.
+/// </summary>
 public class CheckMarketNameExistsQueryHandler : IRequestHandler<CheckMarketNameExistsQuery, bool>
 {
     /// <summary>
@@ -16,7 +19,6 @@ public class CheckMarketNameExistsQueryHandler : IRequestHandler<CheckMarketName
     /// Initializes the <see cref="CheckMarketNameExistsQueryHandler"/> with the application's database context.
     /// </summary>
     /// <param name="appDbContext">The application's database context used to interact with the database.</param>
-
     public CheckMarketNameExistsQueryHandler(AppDbContext appDbContext)
     {
         _appDbContext = appDbContext;
@@ -28,7 +30,6 @@ public class CheckMarketNameExistsQueryHandler : IRequestHandler<CheckMarketName
     /// <param name="request">The query object containing the market name to be checked.</param>
     /// <param name="cancellationToken">Token for handling operation cancellation.</param>
     /// <returns>A Task that asynchronously returns true if the market name exists, otherwise false.</returns>
-
     public async Task<bool> Handle(CheckMarketNameExistsQuery request, CancellationToken cancellationToken)
     {
         /// Step 1: Perform a case-insensitive comparison to check if the market name exists.

@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace Application.Requests.Market;
+namespace Application.Requests.MarketRequests;
 
 /// <summary>
 /// Query to check if a market code exists in the database.
