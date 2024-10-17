@@ -84,7 +84,6 @@ public class UpdateMarketCommandHandler : IRequestHandler<UpdateMarketCommand, o
         }
 
 
-        existingMarket.Id = request.Id;
         existingMarket.Name = request.Name ?? existingMarket.Name;
         existingMarket.Code = request.Code ?? existingMarket.Code;
         existingMarket.LongMarketCode = request.LongMarketCode ?? existingMarket.LongMarketCode;
@@ -95,17 +94,21 @@ public class UpdateMarketCommandHandler : IRequestHandler<UpdateMarketCommand, o
 
         var existingSubGroups = existingMarket.MarketSubGroups.ToList();
 
-        
+
+        var requestSubGroupIds = new HashSet<int>(request.MarketSubGroups.Select(reqSg => reqSg.SubGroupId));
+
         var subGroupsToRemove = existingSubGroups
-            .Where(sg => !request.MarketSubGroups.Any(reqSg => reqSg.SubGroupId == sg.SubGroupId))
+            .Where(sg => !requestSubGroupIds.Contains(sg.SubGroupId))
             .ToList();
+
 
         foreach (var subGroupToRemove in subGroupsToRemove)
         {
             _context.MarketSubGroups.Remove(subGroupToRemove);
         }
 
-        
+        var existingSubGroupsDict = existingSubGroups.ToDictionary(sg => sg.SubGroupId);
+
         foreach (var requestSubGroup in request.MarketSubGroups)
         {
             if (!SubGroupValidation.IsValidSubGroupCode(requestSubGroup.SubGroupCode))
@@ -113,37 +116,29 @@ public class UpdateMarketCommandHandler : IRequestHandler<UpdateMarketCommand, o
                 throw new ValidationException($"SubGroupCode {requestSubGroup.SubGroupCode} is invalid. It must be a single alphanumeric character.");
             }
 
-            var existingSubGroup = existingSubGroups
-                .FirstOrDefault(sg => sg.SubGroupId == requestSubGroup.SubGroupId);
-
-            if (existingSubGroup != null)
+            if (existingSubGroupsDict.TryGetValue(requestSubGroup.SubGroupId, out var existingSubGroup))
             {
-                
                 existingSubGroup.SubGroupName = requestSubGroup.SubGroupName;
                 existingSubGroup.SubGroupCode = requestSubGroup.SubGroupCode;
                 existingSubGroup.MarketId = existingMarket.Id;
             }
             else
             {
-                
                 var newSubGroup = new MarketSubGroup
                 {
-                    SubGroupName = requestSubGroup.SubGroupName, 
-                    SubGroupCode = requestSubGroup.SubGroupCode, 
-                    MarketId = existingMarket.Id 
+                    SubGroupName = requestSubGroup.SubGroupName,
+                    SubGroupCode = requestSubGroup.SubGroupCode,
+                    MarketId = existingMarket.Id
                 };
                 _context.MarketSubGroups.Add(newSubGroup);
             }
         }
 
-
         await _context.SaveChangesAsync(cancellationToken);
-
 
         var updatedMarket = await _context.Markets
             .Include(m => m.MarketSubGroups)
             .FirstOrDefaultAsync(m => m.Id == request.Id, cancellationToken);
-
 
         return updatedMarket.Id;
     }
