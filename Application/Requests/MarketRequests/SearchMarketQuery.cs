@@ -1,15 +1,15 @@
 ﻿using Application.DTOs;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Application.Requests.MarketRequests
+namespace Application.Requests.MarketRequests;
+
+/// <summary>
+/// Represents a query to search for markets by a text input.
+/// </summary>
+public class SearchMarketQuery : IRequest<List<MarketDetailsDto>>
 {
-    public class SearchMarketQuery : IRequest<List<MarketDetailsDto>>
-    {
-        public string SearchText { get; set; }
-    }
+    /// <summary>
+    /// Gets or sets the search text used to find markets by name, code, or long market code.
+    /// </summary>
+    public string SearchText { get; set; }
 }

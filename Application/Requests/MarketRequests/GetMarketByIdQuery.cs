@@ -1,15 +1,23 @@
 ﻿using Domain.Model;
 using MediatR;
 
-namespace Application.Requests.MarketRequests
+namespace Application.Requests.MarketRequests;
+/// <summary>
+/// Represents a query to retrieve a market by its unique identifier.
+/// </summary>
+public class GetMarketByIdQuery : IRequest<Market>
 {
-    public class GetMarketByIdQuery : IRequest<Market>
-    {
-        public int MarketId { get; set; }
+    /// <summary>
+    /// Gets or sets the unique identifier of the market to be retrieved.
+    /// </summary>
+    public int MarketId { get; set; }
 
-        public GetMarketByIdQuery(int marketId)
-        {
-            MarketId = marketId;
-        }
+    /// <summary>
+    /// Initializes a new instance of the <see cref="GetMarketByIdQuery"/> class.
+    /// </summary>
+    /// <param name="marketId">The unique identifier of the market to be retrieved.</param>
+    public GetMarketByIdQuery(int marketId)
+    {
+        MarketId = marketId;
     }
 }

@@ -1,21 +1,28 @@
 ﻿using Application.DTOs;
-using Domain.Model;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Application.Requests.SubGroupRequests
+
+namespace Application.Requests.SubGroupRequests;
+
+/// <summary>
+/// Query to retrieve all market subgroups.
+/// Optionally, if a MarketId is provided, retrieves subgroups for the specified market.
+/// </summary>
+public class GetAllMarketSubGroupsQuery : IRequest<List<MarketSubGroupDTO>>
 {
-    public class GetAllMarketSubGroupsQuery : IRequest<List<MarketSubGroupDTO>>
-    {
-        public int? MarketId { get; set; }
+    /// <summary>
+    /// Gets or sets the optional MarketId.
+    /// If provided, subgroups will be filtered by this market ID.
+    /// If null, all market subgroups will be retrieved.
+    /// </summary>
+    public int? MarketId { get; set; }
 
-        public GetAllMarketSubGroupsQuery(int? marketId = null)
-        {
-            MarketId = marketId;
-        }
+    /// <summary>
+    /// Initializes a new instance of the <see cref="GetAllMarketSubGroupsQuery"/> class.
+    /// </summary>
+    /// <param name="marketId">The optional market ID to filter subgroups. Default is null.</param>
+    public GetAllMarketSubGroupsQuery(int? marketId = null)
+    {
+        MarketId = marketId;
     }
 }
