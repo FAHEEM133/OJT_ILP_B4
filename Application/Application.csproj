@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="NewFolder1\**" />
+    <EmbeddedResource Remove="NewFolder1\**" />
+    <None Remove="NewFolder1\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.10.0" />
   </ItemGroup>
@@ -14,10 +20,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj" />
 	  <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="NewFolder1\" />
   </ItemGroup>
 
 </Project>
