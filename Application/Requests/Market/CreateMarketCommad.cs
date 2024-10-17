@@ -1,30 +1,60 @@
+using Application.DTOs;
 using Application.Validations;
+using Azure.Core;
+using Domain.Enums; // Import the enums
+using Domain.Enums.Domain.Enums;
 using Domain.Model;
 using Infrastructure.Data;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
-using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Application.Requests.MarketRequests;
 
 /// <summary>
-/// Handles the creation of a new market entry, including validation of market details and associated subgroups.
+/// Command to create a new market with the provided details.
 /// </summary>
-public class CreateMarketCommandHandler : IRequestHandler<CreateMarketCommand, object>
+public class CreateMarketCommand : IRequest<int>
 {
-    private readonly AppDbContext _context;
+    /// <summary>
+    /// Gets or sets the name of the market to be created.
+    /// </summary>
+    public string Name { get; set; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CreateMarketCommandHandler"/> class with the provided database context.
+    /// Gets or sets the market code.
     /// </summary>
-    /// <param name="context">The application's database context used to interact with the Markets table.</param>
-    public CreateMarketCommandHandler(AppDbContext context)
-    {
-        _context = context;
-    }
+    public string Code { get; set; }
+
+    /// <summary>
+    /// Gets or sets the long version of the market code.
+    /// </summary>
+    public string LongMarketCode { get; set; }
+
+    /// <summary>
+    /// Gets or sets the region where the market is located.
+    /// </summary>
+    public Region Region { get; set; }
+
+    /// <summary>
+    /// Gets or sets the subregion where the market is located.
+    /// </summary>
+    public SubRegion SubRegion { get; set; }
+
+    /// <summary>
+    /// Gets or sets the list of market subgroups associated with the market.
+    /// </summary>
+    public List<MarketSubGroupDTO> MarketSubGroups { get; set; } = new List<MarketSubGroupDTO>();
+}
+
+/// <summary>
+/// Initializes a new instance of the <see cref="CreateMarketCommandHandler"/> class with the provided database context.
+/// </summary>
+/// <param name="context">The application's database context used to interact with the Markets table.</param>
+public class CreateMarketCommandHandler(AppDbContext context) : IRequestHandler<CreateMarketCommand, int>
+{
+    private readonly AppDbContext _context = context;
 
     /// <summary>
     /// Handles the creation of a new market, ensuring validation of market and subgroup details.
@@ -32,7 +62,7 @@ public class CreateMarketCommandHandler : IRequestHandler<CreateMarketCommand, o
     /// <param name="request">The <see cref="CreateMarketCommand"/> containing the market's details and optional subgroups.</param>
     /// <param name="cancellationToken">Token to cancel the operation if needed.</param>
     /// <returns>A response object containing the newly created market and its subgroups.</returns>
-    public async Task<object> Handle(CreateMarketCommand request, CancellationToken cancellationToken)
+    public async Task<int> Handle(CreateMarketCommand request, CancellationToken cancellationToken)
     {
         // LLD steps : 
         // 1. Validate the SubRegion for the specified Region
@@ -92,7 +122,7 @@ public class CreateMarketCommandHandler : IRequestHandler<CreateMarketCommand, o
                 {
                     SubGroupName = subGroupDto.SubGroupName,
                     SubGroupCode = subGroupDto.SubGroupCode,
-                    Market = market 
+                    Market = market
                 };
                 market.MarketSubGroups.Add(marketSubGroups);
             }
@@ -101,7 +131,6 @@ public class CreateMarketCommandHandler : IRequestHandler<CreateMarketCommand, o
         _context.Markets.Add(market);
         await _context.SaveChangesAsync(cancellationToken);
 
-        
         return market.Id;
     }
 }
