@@ -77,8 +77,8 @@ public class MarketController : ControllerBase
     }
 
 
-    [HttpGet("check-code")]
-    public async Task<IActionResult> CheckMarketCodeExists([FromQuery] string marketCode)
+    [HttpGet("code/{marketCode}/exists")]
+    public async Task<IActionResult> CheckMarketCodeExists([FromRoute] string marketCode)
     {
       
         var exists = await _mediator.Send(new CheckMarketCodeExistsQuery { Code = marketCode });
@@ -87,8 +87,8 @@ public class MarketController : ControllerBase
 
 
    
-    [HttpGet("check-name")]
-    public async Task<IActionResult> CheckMarketNameExists([FromQuery] string marketName)
+    [HttpGet("name/{marketName}/exists")]
+    public async Task<IActionResult> CheckMarketNameExists([FromRoute] string marketName)
     {
         
         var exists = await _mediator.Send(new CheckMarketNameExistsQuery { Name = marketName });
