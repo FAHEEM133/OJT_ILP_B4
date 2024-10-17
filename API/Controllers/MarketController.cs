@@ -283,7 +283,12 @@ namespace API.Controllers
             return Ok(markets);
         }
 
-
+        [HttpGet("filter")]
+        public async Task<IActionResult> FilterMarkets([FromQuery] FilterMarketsQuery query)
+        {
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
     }
 }
 
