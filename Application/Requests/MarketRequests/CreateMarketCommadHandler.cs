@@ -1,4 +1,4 @@
-﻿using Application.Validations;
+using Application.Validations;
 using Domain.Model;
 using Infrastructure.Data;
 using MediatR;

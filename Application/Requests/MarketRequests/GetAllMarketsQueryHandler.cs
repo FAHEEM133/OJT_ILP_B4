@@ -1,4 +1,4 @@
-﻿using Domain.Model;
+using Domain.Model;
 using Infrastructure.Data;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

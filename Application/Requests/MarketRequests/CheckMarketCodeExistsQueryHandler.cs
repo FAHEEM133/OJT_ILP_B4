@@ -1,4 +1,4 @@
-﻿using Infrastructure.Data;
+using Infrastructure.Data;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
