@@ -22,12 +22,7 @@ public class MarketController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateMarket([FromBody] CreateMarketCommand command)
     {
-        /*
-         * LLD Steps:
-         * 1. Send the CreateMarketCommand to the mediator for processing.
-         * 2. Await the result which provides the ID of the newly created market.
-         * 3. Use CreatedAtAction to return a response with a link to the GetMarketById method, passing the created market ID.
-         */
+       
         var marketId = await _mediator.Send(command);
         return CreatedAtAction(nameof(GetMarketById), new { id = marketId }, marketId);
     }
