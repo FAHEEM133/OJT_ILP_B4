@@ -9,6 +9,17 @@ using Microsoft.EntityFrameworkCore;
 namespace Application.Requests.MarketRequests;
 
 /// <summary>
+/// Represents a query to retrieve the details of a market by its unique identifier.
+/// </summary>
+public class GetMarketDetailsByIdQuery : IRequest<MarketDetailsDto>
+{
+    /// <summary>
+    /// Gets or sets the unique identifier of the market to retrieve its details.
+    /// </summary>
+    public int Id { get; set; }
+}
+
+/// <summary>
 /// Handles the request to fetch market details by market ID.
 /// Retrieves market information along with associated subgroups from the database
 /// and returns the result as a <see cref="MarketDetailsDto"/>.
@@ -41,7 +52,7 @@ public class GetMarketDetailsByIdQueryHandler : IRequestHandler<GetMarketDetails
         
         var market = await _context.Markets
             .Include(m => m.MarketSubGroups)   
-            .FirstOrDefaultAsync(m => m.Id == request.MarketId, cancellationToken);  
+            .FirstOrDefaultAsync(m => m.Id == request.Id, cancellationToken);  
 
         
         if (market == null) return null;

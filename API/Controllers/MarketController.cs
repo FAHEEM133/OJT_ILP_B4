@@ -144,7 +144,7 @@ namespace API.Controllers
              * 4. If the market is found, return the market details in an Ok response.
              * 5. If no market is found, return a NotFound response with a message indicating the missing market ID.
              */
-            var marketDetails = await _mediator.Send(new GetMarketDetailsByIdQuery { MarketId = id });
+            var marketDetails = await _mediator.Send(new GetMarketDetailsByIdQuery {  Id = id });
 
             if (marketDetails == null)
                 return NotFound($"Market with ID {id} not found");
