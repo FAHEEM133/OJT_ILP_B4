@@ -12,22 +12,22 @@ public class MarketController : ControllerBase
 {
     private readonly IMediator _mediator;
 
-    
+
     public MarketController(IMediator mediator)
     {
         _mediator = mediator;
     }
 
-   
+
     [HttpPost]
     public async Task<IActionResult> CreateMarket([FromBody] CreateMarketCommand command)
     {
-       
+
         var marketId = await _mediator.Send(command);
         return CreatedAtAction(nameof(GetMarketById), new { id = marketId }, marketId);
     }
 
-   
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetMarketById(int id)
     {
@@ -41,33 +41,35 @@ public class MarketController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllMarkets([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+    public async Task<IActionResult> GetAllMarkets([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchText = null, [FromQuery] string? regions = null)
     {
-       
+
 
         var query = new GetAllMarketsQuery
         {
             PageNumber = pageNumber,
-            PageSize = pageSize
+            PageSize = pageSize,
+            SearchText = searchText,
+            Regions = regions
         };
 
-        
+
         var (markets, totalCount) = await _mediator.Send(query);
 
         return Ok(new
         {
-            TotalCount = totalCount,  
-            PageNumber = pageNumber, 
-            PageSize = pageSize,      
-            Markets = markets         
+            TotalCount = totalCount,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+            Markets = markets
         });
     }
 
-    
+
     [HttpGet("{id}/details")]
     public async Task<IActionResult> GetMarketDetailsById(int id)
     {
-       
+
         var marketDetails = await _mediator.Send(new GetMarketDetailsByIdQuery { Id = id });
 
         if (marketDetails == null)
@@ -80,27 +82,27 @@ public class MarketController : ControllerBase
     [HttpGet("code/{marketCode}/exists")]
     public async Task<IActionResult> CheckMarketCodeExists([FromRoute] string marketCode)
     {
-      
+
         var exists = await _mediator.Send(new CheckMarketCodeExistsQuery { Code = marketCode });
         return Ok(exists);
     }
 
 
-   
+
     [HttpGet("name/{marketName}/exists")]
     public async Task<IActionResult> CheckMarketNameExists([FromRoute] string marketName)
     {
-        
+
         var exists = await _mediator.Send(new CheckMarketNameExistsQuery { Name = marketName });
         return Ok(exists);
     }
 
-    
+
 
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateMarket(int id, [FromBody] UpdateMarketCommand command)
     {
-       
+
 
         try
         {
@@ -116,29 +118,11 @@ public class MarketController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteMarketById(int id)
     {
-       
+
         var result = await _mediator.Send(new DeleteMarketCommand { Id = id });
 
         return result ? NoContent() : NotFound();
     }
 
-    [HttpGet("search")]
-    public async Task<IActionResult> SearchMarket([FromQuery] string searchText)
-    {
-       
-        var markets = await _mediator.Send(new SearchMarketQuery
-        {
-            SearchText = searchText
-        });
-
-        if (markets == null || markets.Count == 0)
-        {
-            return NotFound("No markets found with the given search criteria.");
-        }
-
-        return Ok(markets);
-    }
-
 
 }
-
