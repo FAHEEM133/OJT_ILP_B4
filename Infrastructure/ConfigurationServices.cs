@@ -11,9 +11,9 @@ namespace Infrastructure
         {
             
             services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
-            
+
 
             return services;
         }
