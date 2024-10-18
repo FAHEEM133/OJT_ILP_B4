@@ -35,7 +35,7 @@ public class UpdateMarketCommandHandler : IRequestHandler<UpdateMarketCommand, o
         }
 
         // Step 3: Check for an existing market with the same name and code.
-        if (request.Name != null && existingMarket.Name != request.Name)
+        if (request.Name != null && existingMarket.Name.ToLower() != request.Name.ToLower())
         {
             var existingMarketByName = await _context.Markets
                 .FirstOrDefaultAsync(m => m.Name == request.Name && m.Id != request.Id, cancellationToken);
