@@ -2,6 +2,7 @@
 using Domain.Enums;
 using Domain.Enums.Domain.Enums;
 using MediatR;
+using System.Text.Json.Serialization;
 
 namespace Application.Requests.MarketRequests;
 
@@ -13,6 +14,7 @@ public class UpdateMarketCommand : IRequest<object>
     /// <summary>
     /// Gets or sets the unique identifier of the market to be updated.
     /// </summary>
+    [JsonIgnore]
     public int Id { get; set; }
 
     /// <summary>
