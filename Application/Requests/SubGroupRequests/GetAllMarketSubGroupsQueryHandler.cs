@@ -32,7 +32,7 @@ namespace Application.Requests.SubGroupRequests
         /// <returns>A list of <see cref="MarketSubGroupDTO"/> representing the subgroups, sorted by numeric prefix and then alphabetically.</returns>
         public async Task<List<MarketSubGroupDTO>> Handle(GetAllMarketSubGroupsQuery request, CancellationToken cancellationToken)
         {
-            
+
             var query = _context.MarketSubGroups.AsQueryable();
 
             if (request.MarketId.HasValue)
@@ -50,11 +50,11 @@ namespace Application.Requests.SubGroupRequests
                 })
                 .ToListAsync(cancellationToken);
 
-            
+
             subGroups = subGroups
-                .OrderBy(sg => HasNumericPrefix(sg.SubGroupCode) ? 0 : 1) 
-                .ThenBy(sg => GetNumericPrefix(sg.SubGroupCode)) 
-                .ThenBy(sg => sg.SubGroupCode) 
+                .OrderBy(sg => HasNumericPrefix(sg.SubGroupCode) ? 0 : 1)
+                .ThenBy(sg => GetNumericPrefix(sg.SubGroupCode))
+                .ThenBy(sg => sg.SubGroupCode)
                 .ToList();
 
             return subGroups;

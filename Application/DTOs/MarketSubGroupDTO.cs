@@ -2,14 +2,18 @@
 
 namespace Application.DTOs;
 
-public class MarketSubGroupDTO
+namespace Application.DTOs
 {
-    [JsonIgnore]
-    public int SubGroupId { get; set; }
-    public string SubGroupName { get; set; }
-    public string SubGroupCode { get; set; }
+    public class MarketSubGroupDTO
+    {
+        
+        public int SubGroupId { get; set; }
+        public string SubGroupName { get; set; }
+        public string SubGroupCode { get; set; }
+        public int MarketId { get; set; }
 
-    [JsonIgnore]
-    public int MarketId { get; set; }
+        public bool IsDeleted { get; set; } = false;
 
+        public bool IsEdited { get; set; } = false;
+    }
 }

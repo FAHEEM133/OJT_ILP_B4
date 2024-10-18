@@ -41,14 +41,15 @@ public class MarketController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllMarkets([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+    public async Task<IActionResult> GetAllMarkets([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchText = null)
     {
        
 
         var query = new GetAllMarketsQuery
         {
             PageNumber = pageNumber,
-            PageSize = pageSize
+            PageSize = pageSize,
+            SearchText = searchText
         };
 
         
@@ -121,23 +122,6 @@ public class MarketController : ControllerBase
         var result = await _mediator.Send(new DeleteMarketCommand { Id = id });
 
         return result ? NoContent() : NotFound();
-    }
-
-    [HttpGet("search")]
-    public async Task<IActionResult> SearchMarket([FromQuery] string searchText)
-    {
-       
-        var markets = await _mediator.Send(new SearchMarketQuery
-        {
-            SearchText = searchText
-        });
-
-        if (markets == null || markets.Count == 0)
-        {
-            return NotFound("No markets found with the given search criteria.");
-        }
-
-        return Ok(markets);
     }
 
 

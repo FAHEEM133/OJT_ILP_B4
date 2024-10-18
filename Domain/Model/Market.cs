@@ -5,27 +5,27 @@ namespace Domain.Model
 {
     public class Market : AuditableEntity
     {
-        public int Id { get; set; }  // Primary Key
+        public int Id { get; set; }  
 
         [Required]
         [MaxLength(150)]
-        public string Name { get; set; }  // Unique
+        public string Name { get; set; }  
 
         [Required]
         [MaxLength(2)]
-        public string Code { get; set; }  // Unique, 2 letters
+        public string Code { get; set; }  
 
         [Required]
         [MaxLength(50)]
-        public string LongMarketCode { get; set; }  // Optional field for long code
+        public string LongMarketCode { get; set; }  
 
         [Required]
-        public Region Region { get; set; }  // Enum for Region
+        public Region Region { get; set; } 
 
         [Required]
-        public SubRegion SubRegion { get; set; }  // Enum for SubRegion
+        public SubRegion SubRegion { get; set; }  
 
-        // Navigation property for related MarketSubGroups
+        
         public List<MarketSubGroup> MarketSubGroups { get; set; } = new List<MarketSubGroup>();
     }
 }
