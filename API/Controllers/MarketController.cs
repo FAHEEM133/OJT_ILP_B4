@@ -99,12 +99,13 @@ public class MarketController : ControllerBase
     
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateMarket(int id, [FromBody] UpdateMarketCommand command)
+    public async Task<IActionResult> UpdateMarket([FromRoute] int id, [FromBody] UpdateMarketCommand command)
     {
        
 
         try
         {
+            command.Id = id;
             var result = await _mediator.Send(command);
             return Ok(result);
         }
