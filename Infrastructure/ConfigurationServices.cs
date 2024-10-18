@@ -9,11 +9,11 @@ namespace Infrastructure
     {
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
-            
-            services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
-            
+            services.AddDbContext<AppDbContext>(options =>
+               options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+
+
 
             return services;
         }
