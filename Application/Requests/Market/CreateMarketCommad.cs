@@ -69,9 +69,9 @@ public class CreateMarketCommandHandler(AppDbContext context) : IRequestHandler<
         // 2. Check if a market with the same name already exists
         // 3. Check if a market with the same code already exists
         // 4. Create a new Market entity
-        // 5. Add subgroups to the Market, if they are provided and valid.
+        // 5. Add subgroups to the Market, if they are provided and valid
         // 6. Add the new Market to the database and save changes
-        // 7. Return a response containing the created Market and its subgroups
+        // 7. Returns the marketId of newly created market
 
         if (!RegionSubRegionValidation.IsValidSubRegionForRegion(request.Region, request.SubRegion))
         {
@@ -118,13 +118,16 @@ public class CreateMarketCommandHandler(AppDbContext context) : IRequestHandler<
                     throw new ValidationException($"SubGroupCode {subGroupDto.SubGroupCode} is invalid. It must be a single alphanumeric character.");
                 }
 
-                var marketSubGroups = new MarketSubGroup
+                if(!subGroupDto.IsDeleted)
                 {
-                    SubGroupName = subGroupDto.SubGroupName,
-                    SubGroupCode = subGroupDto.SubGroupCode,
-                    Market = market
-                };
-                market.MarketSubGroups.Add(marketSubGroups);
+                    var marketSubGroups = new MarketSubGroup
+                    {
+                        SubGroupName = subGroupDto.SubGroupName,
+                        SubGroupCode = subGroupDto.SubGroupCode,
+                        Market = market
+                    };
+                    market.MarketSubGroups.Add(marketSubGroups);
+                }
             }
         }
 
