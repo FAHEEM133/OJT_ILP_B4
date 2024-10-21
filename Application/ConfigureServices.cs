@@ -22,7 +22,7 @@ namespace Application
             // Add FluentValidation services
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
-           
+            services.AddAutoMapper(typeof(Mappings.MappingProfile));
             return services;
         }
     }
