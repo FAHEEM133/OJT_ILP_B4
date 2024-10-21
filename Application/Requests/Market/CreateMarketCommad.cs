@@ -90,13 +90,16 @@ public class CreateMarketCommandHandler(AppDbContext context, IValidator<CreateM
             {
                 // Subgroup validation has already been handled by the validator.
 
-                var marketSubGroups = new MarketSubGroup
+                if(!subGroupDto.IsDeleted)
                 {
-                    SubGroupName = subGroupDto.SubGroupName,
-                    SubGroupCode = subGroupDto.SubGroupCode,
-                    Market = market
-                };
-                market.MarketSubGroups.Add(marketSubGroups);
+                    var marketSubGroups = new MarketSubGroup
+                    {
+                        SubGroupName = subGroupDto.SubGroupName,
+                        SubGroupCode = subGroupDto.SubGroupCode,
+                        Market = market
+                    };
+                    market.MarketSubGroups.Add(marketSubGroups);
+                }
             }
         }
 
