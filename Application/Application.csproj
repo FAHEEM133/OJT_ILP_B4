@@ -8,8 +8,11 @@
 
   <ItemGroup>
     <Compile Remove="NewFolder1\**" />
+    <Compile Remove="Requests\MarketRequests\**" />
     <EmbeddedResource Remove="NewFolder1\**" />
+    <EmbeddedResource Remove="Requests\MarketRequests\**" />
     <None Remove="NewFolder1\**" />
+    <None Remove="Requests\MarketRequests\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,10 +24,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj" />
 	  <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Requests\MarketRequests\" />
   </ItemGroup>
 
 </Project>
