@@ -1,14 +1,14 @@
 using Application.DTOs;
 using Application.Validations;
-using Azure.Core;
-using Domain.Enums; // Import the enums
-using Domain.Enums.Domain.Enums;
+using Domain.Enums;
 using Domain.Model;
 using Infrastructure.Data;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
+using FluentValidation;
+using System.ComponentModel.DataAnnotations; 
 using System.Threading;
+using Domain.Enums.Domain.Enums;
 
 namespace Application.Requests.MarketRequests;
 
@@ -17,87 +17,63 @@ namespace Application.Requests.MarketRequests;
 /// </summary>
 public class CreateMarketCommand : IRequest<int>
 {
-    /// <summary>
-    /// Gets or sets the name of the market to be created.
-    /// </summary>
     public string Name { get; set; }
-
-    /// <summary>
-    /// Gets or sets the market code.
-    /// </summary>
     public string Code { get; set; }
-
-    /// <summary>
-    /// Gets or sets the long version of the market code.
-    /// </summary>
     public string LongMarketCode { get; set; }
-
-    /// <summary>
-    /// Gets or sets the region where the market is located.
-    /// </summary>
     public Region Region { get; set; }
-
-    /// <summary>
-    /// Gets or sets the subregion where the market is located.
-    /// </summary>
     public SubRegion SubRegion { get; set; }
-
-    /// <summary>
-    /// Gets or sets the list of market subgroups associated with the market.
-    /// </summary>
     public List<MarketSubGroupDTO> MarketSubGroups { get; set; } = new List<MarketSubGroupDTO>();
 }
 
 /// <summary>
-/// Initializes a new instance of the <see cref="CreateMarketCommandHandler"/> class with the provided database context.
+/// Handler for the CreateMarketCommand, responsible for creating a new market with validation.
 /// </summary>
+/// <remarks>
+/// Initializes a new instance of the <see cref="CreateMarketCommandHandler"/> class with the provided database context and validator.
+/// </remarks>
 /// <param name="context">The application's database context used to interact with the Markets table.</param>
-public class CreateMarketCommandHandler(AppDbContext context) : IRequestHandler<CreateMarketCommand, int>
+/// <param name="validator">The validator to ensure the command is valid before handling.</param>
+public class CreateMarketCommandHandler(AppDbContext context, IValidator<CreateMarketCommand> validator) : IRequestHandler<CreateMarketCommand, int>
 {
     private readonly AppDbContext _context = context;
+    private readonly IValidator<CreateMarketCommand> _validator = validator;
 
     /// <summary>
     /// Handles the creation of a new market, ensuring validation of market and subgroup details.
     /// </summary>
     /// <param name="request">The <see cref="CreateMarketCommand"/> containing the market's details and optional subgroups.</param>
     /// <param name="cancellationToken">Token to cancel the operation if needed.</param>
-    /// <returns>A response object containing the newly created market and its subgroups.</returns>
+    /// <returns>The ID of the newly created market.</returns>
     public async Task<int> Handle(CreateMarketCommand request, CancellationToken cancellationToken)
     {
-        // LLD steps : 
-        // 1. Validate the SubRegion for the specified Region
-        // 2. Check if a market with the same name already exists
-        // 3. Check if a market with the same code already exists
-        // 4. Create a new Market entity
-        // 5. Add subgroups to the Market, if they are provided and valid
-        // 6. Add the new Market to the database and save changes
-        // 7. Returns the marketId of newly created market
-
-        if (!RegionSubRegionValidation.IsValidSubRegionForRegion(request.Region, request.SubRegion))
+        // Step 1: Perform validation using the validator.
+        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
         {
-            throw new ValidationException($"SubRegion {request.SubRegion} is not valid for the Region {request.Region}");
+            // Use FluentValidation.ValidationException for validation issues
+            throw new FluentValidation.ValidationException(validationResult.Errors);
         }
 
-
+        // Step 2: Check if a market with the same name already exists in the database.
         var existingMarketByName = await _context.Markets
             .FirstOrDefaultAsync(m => m.Name == request.Name, cancellationToken);
-
         if (existingMarketByName != null)
         {
-            var validationError = new ValidationException(new ValidationResult("A market with this name already exists.", new[] { "Name" }), null, null);
-            throw validationError;
+            // Use System.ComponentModel.DataAnnotations.ValidationException for DB-related validation issues
+            throw new System.ComponentModel.DataAnnotations.ValidationException(
+                new ValidationResult("A market with this name already exists.", new[] { "Name" }), null, null);
         }
 
+        // Step 3: Check if a market with the same code already exists in the database.
         var existingMarketByCode = await _context.Markets
             .FirstOrDefaultAsync(m => m.Code == request.Code, cancellationToken);
-
         if (existingMarketByCode != null)
         {
-            var validationError = new ValidationException(new ValidationResult("A market with this code already exists.", new[] { "Code" }), null, null);
-            throw validationError;
+            throw new System.ComponentModel.DataAnnotations.ValidationException(
+                new ValidationResult("A market with this code already exists.", new[] { "Code" }), null, null);
         }
 
-
+        // Step 4: Create a new Market entity with the provided details.
         var market = new Market
         {
             Name = request.Name,
@@ -107,16 +83,12 @@ public class CreateMarketCommandHandler(AppDbContext context) : IRequestHandler<
             SubRegion = request.SubRegion
         };
 
-
+        // Step 5: Add subgroups to the Market if they are provided and valid.
         if (request.MarketSubGroups != null && request.MarketSubGroups.Count > 0)
         {
             foreach (var subGroupDto in request.MarketSubGroups)
             {
-
-                if (!SubGroupValidation.IsValidSubGroupCode(subGroupDto.SubGroupCode))
-                {
-                    throw new ValidationException($"SubGroupCode {subGroupDto.SubGroupCode} is invalid. It must be a single alphanumeric character.");
-                }
+                // Subgroup validation has already been handled by the validator.
 
                 if(!subGroupDto.IsDeleted)
                 {
@@ -131,9 +103,11 @@ public class CreateMarketCommandHandler(AppDbContext context) : IRequestHandler<
             }
         }
 
+        // Step 6: Add the new Market to the database and save changes.
         _context.Markets.Add(market);
         await _context.SaveChangesAsync(cancellationToken);
 
+        // Step 7: Return the ID of the created market.
         return market.Id;
     }
 }

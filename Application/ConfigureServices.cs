@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using FluentValidation;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,10 @@ namespace Application
                 ctg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
             });
 
+            // Add FluentValidation services
+            services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
+           
             return services;
         }
     }
