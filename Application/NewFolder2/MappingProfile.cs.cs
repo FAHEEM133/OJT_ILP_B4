@@ -17,7 +17,7 @@ namespace Application.NewFolder2
                 .ForMember(dest => dest.MarketSubGroups, opt => opt.MapFrom(src => src.MarketSubGroups));
 
             // MarketSubGroup to MarketSubGroupDto
-            CreateMap<MarketSubGroup, MarketSubGroupDto>();
+            CreateMap<MarketSubGroup, MarketSubGroupDTO>();
         }
     }
 }

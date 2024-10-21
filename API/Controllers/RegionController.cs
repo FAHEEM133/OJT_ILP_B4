@@ -32,7 +32,7 @@ namespace API.Controllers
          * Returns:
          * - Task<IActionResult>: Asynchronously returns a list of all regions.
          */
-        [HttpGet("all-regions")]
+        [HttpGet("regions")]
         public async Task<IActionResult> GetAllRegions()
         {
             /*

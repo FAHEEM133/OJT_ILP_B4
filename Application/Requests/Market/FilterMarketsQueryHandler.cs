@@ -60,7 +60,7 @@ namespace Application.Requests.MarketRequests
                         LongMarketCode = m.LongMarketCode,
                         Region = m.Region.ToString(), // Convert Region enum to string
                         SubRegion = m.SubRegion.ToString(), // Assuming SubRegion is an enum, convert to string
-                        MarketSubGroups = m.MarketSubGroups.Select(sg => new MarketSubGroupDto
+                        MarketSubGroups = m.MarketSubGroups.Select(sg => new MarketSubGroupDTO
                         {
                             SubGroupId = sg.SubGroupId,
                             SubGroupName = sg.SubGroupName,

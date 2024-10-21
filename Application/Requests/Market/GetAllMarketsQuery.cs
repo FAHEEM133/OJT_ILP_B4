@@ -99,7 +99,7 @@ public class GetAllMarketsQueryHandler : IRequestHandler<GetAllMarketsQuery, (Li
                        Region = m.Region.ToString(),
                        SubRegion = m.SubRegion.ToString(),
                        MarketSubGroups = m.MarketSubGroups
-                           .Select(sg => new MarketSubGroupDto
+                           .Select(sg => new MarketSubGroupDTO
                            {
                                SubGroupId = sg.SubGroupId,
                                SubGroupName = sg.SubGroupName,
