@@ -10,7 +10,7 @@ public class GetMarketByIdQuery : IRequest<Market>
     /// <summary>
     /// Gets or sets the unique identifier of the market to be retrieved.
     /// </summary>
-    public int MarketId { get; set; }
+    public int Id { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GetMarketByIdQuery"/> class.
@@ -18,6 +18,6 @@ public class GetMarketByIdQuery : IRequest<Market>
     /// <param name="marketId">The unique identifier of the market to be retrieved.</param>
     public GetMarketByIdQuery(int marketId)
     {
-        MarketId = marketId;
+       Id = marketId;
     }
 }

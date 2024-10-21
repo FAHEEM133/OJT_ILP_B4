@@ -1,48 +1,50 @@
-﻿using Application.Requests.MarketRequests;
-using Domain.Model;
+﻿using Domain.Model;
 using Infrastructure.Data;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
+using System.Threading;
+using System.Threading.Tasks;
 
-
-namespace Application.Handlers.MarketHandlers;
-
-/// <summary>
-/// Handles the retrieval of a specific market by its ID.
-/// Queries the database to fetch the market along with its related subgroups, if available.
-/// </summary>
-public class GetMarketByIdHandler : IRequestHandler<GetMarketByIdQuery, Market>
+namespace Application.Requests.MarketRequests
 {
-    private readonly AppDbContext _context;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="GetMarketByIdHandler"/> class.
-    /// </summary>
-    /// <param name="context">The application's database context used to query the Markets table.</param>
-    public GetMarketByIdHandler(AppDbContext context)
+    public class GetMarketByIdQueryHandler : IRequestHandler<GetMarketByIdQuery, Market>
     {
-        _context = context;
-    }
+        private readonly AppDbContext _context;
 
-    /// <summary>
-    /// Handles the query to retrieve a market by its ID, including its associated subgroups.
-    /// </summary>
-    /// <param name="request">The request containing the MarketId to retrieve the market.</param>
-    /// <param name="cancellationToken">Token to cancel the operation if needed.</param>
-    /// <returns>The <see cref="Market"/> object corresponding to the provided MarketId, or null if not found.</returns>
-    public async Task<Market> Handle(GetMarketByIdQuery request, CancellationToken cancellationToken)
-    {
-        
-        var market = await _context.Markets
-            .Include(m => m.MarketSubGroups)
-            .FirstOrDefaultAsync(m => m.Id == request.MarketId, cancellationToken);
-
-        
-        if (market == null)
+        /*
+         * Constructor: GetMarketByIdQueryHandler
+         * Initializes the handler with the database context.   
+         * 
+         * Parameters:
+         * - context: AppDbContext - The application's database context used to interact with the database.
+         */
+        public GetMarketByIdQueryHandler(AppDbContext context)
         {
-            return null;
+            _context = context;
         }
 
-        return market;
+        /*
+         * Method: Handle
+         * Retrieves a market entry from the database based on the provided market ID.
+         * 
+         * Parameters:
+         * - request: GetMarketByIdQuery - The query object containing the market ID to be retrieved.
+         * - cancellationToken: CancellationToken - Token for handling operation cancellation.
+         * 
+         * Returns:
+         * - Task<Market>: Asynchronously returns the Market entity with the specified ID or null if not found.
+         */
+        public async Task<Market> Handle(GetMarketByIdQuery request, CancellationToken cancellationToken)
+        {
+            /*
+             * LLD Steps:
+             * 1. Use the AppDbContext to access the Markets DbSet.
+             * 2. Call the `FindAsync` method on the Markets DbSet with the provided market ID from the request.
+             * 3. Pass the market ID as an object array to `FindAsync`.
+             * 4. Include the cancellationToken in the `FindAsync` call to handle cancellation.
+             * 5. Await the asynchronous call to retrieve the market entity with the specified ID.
+             * 6. Return the retrieved Market entity, or null if the entity is not found.
+             */
+            return await _context.Markets.FindAsync(new object[] { request.Id }, cancellationToken);
+        }
     }
 }

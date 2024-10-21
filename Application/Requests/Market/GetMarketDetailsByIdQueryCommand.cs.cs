@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using AutoMapper;
 using Domain.Enums;
 using Domain.Enums.Domain.Enums;
 using Infrastructure.Data;
@@ -9,6 +10,17 @@ using Microsoft.EntityFrameworkCore;
 namespace Application.Requests.MarketRequests;
 
 /// <summary>
+/// Represents a query to retrieve the details of a market by its unique identifier.
+/// </summary>
+public class GetMarketDetailsByIdQuery : IRequest<MarketDetailsDto>
+{
+    /// <summary>
+    /// Gets or sets the unique identifier of the market to retrieve its details.
+    /// </summary>
+    public int Id { get; set; }
+}
+
+/// <summary>
 /// Handles the request to fetch market details by market ID.
 /// Retrieves market information along with associated subgroups from the database
 /// and returns the result as a <see cref="MarketDetailsDto"/>.
@@ -16,14 +28,16 @@ namespace Application.Requests.MarketRequests;
 public class GetMarketDetailsByIdQueryHandler : IRequestHandler<GetMarketDetailsByIdQuery, MarketDetailsDto>
 {
     private readonly AppDbContext _context;
+    private readonly IMapper _mapper;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GetMarketDetailsByIdQueryHandler"/> class.
     /// </summary>
     /// <param name="context">The application's database context used to query the Markets table.</param>
-    public GetMarketDetailsByIdQueryHandler(AppDbContext context)
+    public GetMarketDetailsByIdQueryHandler(AppDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
     /// <summary>
@@ -41,7 +55,7 @@ public class GetMarketDetailsByIdQueryHandler : IRequestHandler<GetMarketDetails
         
         var market = await _context.Markets
             .Include(m => m.MarketSubGroups)   
-            .FirstOrDefaultAsync(m => m.Id == request.MarketId, cancellationToken);  
+            .FirstOrDefaultAsync(m => m.Id == request.Id, cancellationToken);  
 
         
         if (market == null) return null;
@@ -49,24 +63,12 @@ public class GetMarketDetailsByIdQueryHandler : IRequestHandler<GetMarketDetails
         var regionString = Enum.GetName(typeof(Region), market.Region);
         var subRegionString = Enum.GetName(typeof(SubRegion), market.SubRegion);
 
-        
-        var marketDetails = new MarketDetailsDto
-        {
-            Id = market.Id,               
-            Name = market.Name,           
-            Code = market.Code,           
-            LongMarketCode = market.LongMarketCode, 
-            Region = regionString,              
-            SubRegion = subRegionString,        
-            MarketSubGroups = market.MarketSubGroups.Select(subGroup => new MarketSubGroupDTO
-            {
-                SubGroupId = subGroup.SubGroupId,    
-                SubGroupName = subGroup.SubGroupName, 
-                SubGroupCode = subGroup.SubGroupCode  
-            }).ToList()  
-        };
 
-        
-        return marketDetails;
+        var marketDetailsDto = _mapper.Map<MarketDetailsDto>(market);
+
+        return marketDetailsDto;
+
+
+
     }
 }

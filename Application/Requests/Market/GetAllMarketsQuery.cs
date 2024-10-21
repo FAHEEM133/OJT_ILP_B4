@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Domain.Enums;
 using Domain.Model;
 using Infrastructure.Data;
 using MediatR;
@@ -26,6 +27,8 @@ public class GetAllMarketsQuery : IRequest<(List<MarketDetailsDto> Markets, int 
     /// If provided, the query will return markets matching this text.
     /// </summary>
     public string? SearchText { get; set; }
+
+    public string? Regions { get; set; }
 }
 
 /// <summary>
@@ -63,6 +66,18 @@ public class GetAllMarketsQueryHandler : IRequestHandler<GetAllMarketsQuery, (Li
             query = query.Where(m => m.Name.Contains(request.SearchText)
                                   || m.Code.Contains(request.SearchText)
                                   || m.LongMarketCode.Contains(request.SearchText));
+        }
+
+        if (!string.IsNullOrEmpty(request.Regions))
+        {
+            // Split the string into a list of integers (Region enum values)
+            var regionIds = request.Regions.Split(',')
+                                           .Select(int.Parse)
+                                           .Cast<Region>()
+                                           .ToList();
+
+            // Apply the filter for regions
+            query = query.Where(m => regionIds.Contains(m.Region));
         }
         /// Step 1: Retrieve the total count of available markets in the database.
         /// Step 2: Fetch the list of markets based on the page number and page size specified in the request.
