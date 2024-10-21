@@ -68,19 +68,16 @@ public class GetAllMarketsQueryHandler : IRequestHandler<GetAllMarketsQuery, (Li
                                   || m.LongMarketCode.Contains(request.SearchText));
         }
 
-
         if (!string.IsNullOrEmpty(request.Regions))
         {
-            var regionsArray = request.Regions.Split(',')
-                .Select(r => Enum.TryParse<Region>(r.Trim(), out var region) ? region : (Region?)null)
-                .Where(r => r.HasValue)
-                .Select(r => r.Value)
-                .ToList();
+            // Split the string into a list of integers (Region enum values)
+            var regionIds = request.Regions.Split(',')
+                                           .Select(int.Parse)
+                                           .Cast<Region>()
+                                           .ToList();
 
-            if (regionsArray.Any())
-            {
-                query = query.Where(m => regionsArray.Contains(m.Region));
-            }
+            // Apply the filter for regions
+            query = query.Where(m => regionIds.Contains(m.Region));
         }
         /// Step 1: Retrieve the total count of available markets in the database.
         /// Step 2: Fetch the list of markets based on the page number and page size specified in the request.

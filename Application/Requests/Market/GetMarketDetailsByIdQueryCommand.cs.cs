@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using AutoMapper;
 using Domain.Enums;
 using Domain.Enums.Domain.Enums;
 using Infrastructure.Data;
@@ -27,14 +28,16 @@ public class GetMarketDetailsByIdQuery : IRequest<MarketDetailsDto>
 public class GetMarketDetailsByIdQueryHandler : IRequestHandler<GetMarketDetailsByIdQuery, MarketDetailsDto>
 {
     private readonly AppDbContext _context;
+    private readonly IMapper _mapper;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GetMarketDetailsByIdQueryHandler"/> class.
     /// </summary>
     /// <param name="context">The application's database context used to query the Markets table.</param>
-    public GetMarketDetailsByIdQueryHandler(AppDbContext context)
+    public GetMarketDetailsByIdQueryHandler(AppDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
     /// <summary>
@@ -60,24 +63,12 @@ public class GetMarketDetailsByIdQueryHandler : IRequestHandler<GetMarketDetails
         var regionString = Enum.GetName(typeof(Region), market.Region);
         var subRegionString = Enum.GetName(typeof(SubRegion), market.SubRegion);
 
-        
-        var marketDetails = new MarketDetailsDto
-        {
-            Id = market.Id,               
-            Name = market.Name,           
-            Code = market.Code,           
-            LongMarketCode = market.LongMarketCode, 
-            Region = regionString,              
-            SubRegion = subRegionString,        
-            MarketSubGroups = market.MarketSubGroups.Select(subGroup => new MarketSubGroupDto
-            {
-                SubGroupId = subGroup.SubGroupId,    
-                SubGroupName = subGroup.SubGroupName, 
-                SubGroupCode = subGroup.SubGroupCode  
-            }).ToList()  
-        };
 
-        
-        return marketDetails;
+        var marketDetailsDto = _mapper.Map<MarketDetailsDto>(market);
+
+        return marketDetailsDto;
+
+
+
     }
 }
