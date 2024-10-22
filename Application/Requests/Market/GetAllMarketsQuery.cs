@@ -58,6 +58,10 @@ public class GetAllMarketsQueryHandler : IRequestHandler<GetAllMarketsQuery, (Li
     /// <returns>A Task that asynchronously returns a tuple containing a list of markets and the total market count.</returns>
     public async Task<(List<MarketDetailsDto> Markets, int TotalCount)> Handle(GetAllMarketsQuery request, CancellationToken cancellationToken)
     {
+        // Log the received PageNumber for debugging
+        Console.WriteLine($"Handler Received PageNumber: {request.PageNumber}");
+
+        // Step 1: Start building the base query to fetch markets
         var query = _context.Markets.AsQueryable();
 
         // If search text is provided, filter by name, code, or longMarketCode
@@ -79,16 +83,14 @@ public class GetAllMarketsQueryHandler : IRequestHandler<GetAllMarketsQuery, (Li
             // Apply the filter for regions
             query = query.Where(m => regionIds.Contains(m.Region));
         }
-        /// Step 1: Retrieve the total count of available markets in the database.
-        /// Step 2: Fetch the list of markets based on the page number and page size specified in the request.
-        /// Step 3: Include the associated MarketSubGroups for each market.
-        /// Step 4: Return the list of markets along with the total count.
 
+        /// Step 2: Retrieve the total count of available markets in the database.
         var totalCount = await query.CountAsync(cancellationToken);
 
+        /// Step 3: Fetch the list of markets based on the page number and page size specified in the request.
         var markets = await query
                    .Include(m => m.MarketSubGroups)
-                   .Skip((request.PageNumber - 1) * request.PageSize)
+                   .Skip((request.PageNumber - 1) * request.PageSize)  // Ensure pagination uses the request's PageNumber
                    .Take(request.PageSize)
                    .Select(m => new MarketDetailsDto
                    {
@@ -108,6 +110,10 @@ public class GetAllMarketsQueryHandler : IRequestHandler<GetAllMarketsQuery, (Li
                    })
                    .ToListAsync(cancellationToken);
 
+        // Log the outgoing response for verification
+        Console.WriteLine($"Returning PageNumber: {request.PageNumber}, TotalCount: {totalCount}");
+
+        /// Step 4: Return the list of markets along with the total count.
         return (markets, totalCount);
     }
 }

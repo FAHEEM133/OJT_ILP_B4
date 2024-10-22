@@ -41,7 +41,7 @@ public class MarketController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllMarkets([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchText = null, [FromQuery] string? regions = null)
+    public async Task<IActionResult> GetAllMarkets([FromQuery] int pageNumber=1, [FromQuery] int pageSize = 10 , [FromQuery] string? searchText = null, [FromQuery] string? regions = null)
     {
 
 
