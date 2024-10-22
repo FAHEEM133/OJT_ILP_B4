@@ -54,6 +54,29 @@ public class CreateMarketCommandHandler(AppDbContext context, IValidator<CreateM
             throw new FluentValidation.ValidationException(validationResult.Errors);
         }
 
+        // Check for unique subgroup codes and names within the request itself
+        var duplicateSubGroupCodes = request.MarketSubGroups
+            .GroupBy(sg => sg.SubGroupCode)
+            .Where(g => g.Count() > 1)
+            .Select(g => g.Key).ToList();
+
+        if (duplicateSubGroupCodes.Any())
+        {
+            throw new System.ComponentModel.DataAnnotations.ValidationException(
+                new ValidationResult($"SubGroupCode must be unique within the market.", new[] { "SubGroupCode" }), null, null);
+        }
+
+        var duplicateSubGroupNames = request.MarketSubGroups
+            .GroupBy(sg => sg.SubGroupName)
+            .Where(g => g.Count() > 1)
+            .Select(g => g.Key).ToList();
+
+        if (duplicateSubGroupNames.Any())
+        {
+            throw new System.ComponentModel.DataAnnotations.ValidationException(
+                new ValidationResult($"SubGroupName must be unique within the market.", new[] { "SubGroupName" }), null, null);
+        }
+
         // Step 2: Check if a market with the same name already exists in the database.
         var existingMarketByName = await _context.Markets
             .FirstOrDefaultAsync(m => m.Name == request.Name, cancellationToken);
